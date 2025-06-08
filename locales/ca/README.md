@@ -15,71 +15,85 @@ English • [Català](locales/ca/README.md) • [Deutsch](locales/de/README.md) 
   <h1>Roo-AINovel</h1>
 </div>
 
-**Roo-AINovel** és un complement de VSCode d'ajuda a la creació de novel·les amb IA desenvolupat a partir de [Roo Code](https://github.com/RooCodeInc/Roo-Code). Transforma les capacitats d'edició de codi intel·ligent de Roo Code en una eina d'ajuda a la creació de novel·les, ajudant els autors amb la conceptualització, generació d'esquemes, redacció de capítols i refinament del contingut.
+**Roo-AINovel** is a VSCode extension for AI-assisted novel creation developed from [Roo Code](https://github.com/RooCodeInc/Roo-Code). It transforms Roo Code's intelligent code editing capabilities into a novel creation assistance tool, helping authors with conceptualization, outline generation, chapter writing, and content refinement.
 
-## Origen del Projecte
+## Project Origin
 
-Roo-AINovel està basat en Roo Code (un complement de VSCode per a l'edició intel·ligent de codi amb IA) i amplia les seves potents capacitats d'assistència amb IA des de l'àmbit de l'edició de codi fins al de la creació literària. Hem mantingut l'arquitectura central i les capacitats d'interacció amb IA del projecte original, mentre redissenyem la interfície, les eines i les funcionalitats per adaptar-les completament al procés de creació de novel·les.
+Roo-AINovel is based on Roo Code (a VSCode extension for intelligent code editing with AI) and extends its powerful AI assistance capabilities from the realm of code editing to literary creation. We've maintained the core architecture and AI interaction capabilities of the original project, while redesigning the interface, tools, and functionalities to fully adapt them to the novel creation process.
 
 ---
 
-## Què pot fer Roo-AINovel?
+## Why This Extension?
 
-- 📝 **Generació de text** - Crear contingut i capítols de novel·la d'alta qualitat
-- 🏗️ **Construcció d'estructura** - Dissenyar marcs complets de novel·la i relacions entre personatges
-- 🔍 **Correcció d'errors** - Diagnosticar i solucionar problemes textuals
-- ✨ **Millora de contingut** - Optimitzar l'estil d'escriptura, diàlegs i descripcions d'escenes
-- 🔬 **Anàlisi de novel·les** - Analitzar l'estil, estructura i temes de l'obra
-- 🎬 **Adaptació de guions** - Convertir el contingut de la novel·la a format de guió professional
-- 🎭 **Imitació d'estil** - Crear contingut que imiti l'estil d'autors específics
-- 💡 **Inspiració creativa** - Proporcionar idees i mètodes creatius des de múltiples perspectives
-- 🖼️ **Mode de text visual** - Crear documents mixtos de text i imatge descarregables
+The creator loves reading novels and has attempted writing novels before, but struggled due to writing skill limitations. After learning about AI applications and exploring various AI novel tools, the idea of creating an AI novel tool emerged.
 
-## Inici ràpid
+---
 
-1. Instal·lar VS Code
-2. Instal·lar el complement Roo-AINovel
-3. Configurar la interfície del model d'IA (compatible amb diversos proveïdors de serveis d'IA)
-4. Començar la teva primera tasca creativa
+## Why as a VSCode Extension?
 
-## Eines intel·ligents
+There are too many advantages:
+1. VSCode is an excellent text editor, suitable for all text editing scenarios including novel writing - it's almost overqualified for writing novels.
+2. Git can be used for novel management.
+3. VSCode AI plugins like ROOcode, Cline, and Cursor are all based on VSCode modifications. These tools have mature AI integration, making them ideal for adaptation into AI novel applications.
+4. The creator learned to use AI tools like ROOcode and Cline for coding during the AI learning process, and this project was coded using these AI code tools.
+5. The creator hopes to provide a better environment and tools for those who want to write their own novels.
+6. Future integration with other services is convenient, such as cloud service support and MCP service usage.
 
-Roo-AINovel està equipat amb potents eines d'assistència a la creació:
+---
 
-- Lectura i escriptura de fitxers - Operar directament amb els fitxers de la teva novel·la a VS Code
-- Generador d'estructura de novel·la - Crear ràpidament marcs de novel·la i esquemes de capítols
-- Convertidor de format - Convertir lliurement entre formats com Markdown, TXT, Word, etc.
-- Generador de fitxes de personatges - Crear configuracions detallades de personatges i diagrames de relacions
-- Detecció de conflictes argumentals - Identificar automàticament contradiccions en la trama
-- Comprovació de coherència d'estil - Mantenir un estil uniforme en tot el text
-- Ampliar més funcionalitats amb MCP
+## What can Roo-AINovel do?
 
-## Personalització
+- 📝 **Text Generation** - Create high-quality novel content and chapters
+- 🏗️ **Structure Building** - Design complete novel frameworks and character relationships
+- 🔍 **Error Correction** - Diagnose and fix textual problems
+- ✨ **Content Enhancement** - Optimize writing style, dialogues, and scene descriptions
+- 🔬 **Novel Analysis** - Analyze the style, structure, and themes of the work
+- 🎬 **Script Adaptation** - Convert novel content to professional script format
+- 🎭 **Style Imitation** - Create content that mimics the style of specific authors
+- 💡 **Creative Inspiration** - Provide creative ideas and methods from multiple perspectives
+- 🖼️ **Visual Text Mode** - Create downloadable mixed text and image documents
 
-Personalitza Roo-AINovel segons les teves necessitats creatives:
+## Quick Start
 
-- **Instruccions personalitzades** - Establir preferències d'escriptura i requisits d'estil personalitzats
-- **Modes personalitzats** - Crear modes d'assistència específics per a tipus particulars de creació de novel·les
-- **Suport per a models locals** - Compatible amb l'ús de models d'IA locals per protegir la privacitat creativa
-- **Configuració d'operacions automàtiques** - Simplificar tasques repetitives i augmentar l'eficiència creativa
+1. Install VS Code
+2. Install the Roo-AINovel extension
+3. Configure the AI model interface (compatible with various AI service providers)
+4. Start your first creative task
 
-## Característiques destacades
+## Intelligent Tools
 
-- **Centrat en la creació de novel·les** - Assistent d'IA completament personalitzat per al procés de creació de novel·les
-- **Suport multimodal** - Suport integral per a generació de text, planificació estructural, anàlisi d'estil, etc.
-- **Diversitat de formats** - Compatible amb múltiples formats de fitxer i opcions d'exportació
-- **Desplegament local** - Compatible amb models d'IA locals per protegir la privacitat creativa
-- **Arquitectura oberta** - Basat en el protocol MCP, amb funcionalitats ampliables il·limitades
-- **Integració amb VSCode** - Integració perfecta amb l'editor popular, proporcionant un entorn de creació familiar
+Roo-AINovel is equipped with powerful creation assistance tools:
 
-## Avís legal
+- File Reading and Writing - Operate directly with your novel files in VS Code
+- Novel Structure Generator - Quickly create novel frameworks and chapter outlines
+- Format Converter - Freely convert between formats such as Markdown, TXT, Word, etc.
+- Novel Annotations - Annotate important AI creative intentions for reference during revisions
+- Novel Style Imitation - Learn from others to develop your own unique style
 
-**Tingues en compte** que Roo-AINovel no fa cap representació ni garantia sobre cap codi, model o altra eina proporcionada o disponible, o qualsevol eina de tercers relacionada o qualsevol sortida de resultats. Assumeixes tots els riscos associats amb l'ús de tals eines o sortides.
+## Key Features
 
-## Llicència
+- **Novel Creation Focused** - AI assistant fully customized for the novel creation process
+- **Multimodal Support** - Comprehensive support for text generation, structural planning, style analysis, etc.
+- **Format Diversity** - Compatible with multiple file formats and export options
+- **Local Deployment** - Compatible with local AI models to protect creative privacy
+- **Open Architecture** - Based on the MCP protocol, with unlimited expandable functionalities
+- **VSCode Integration** - Seamless integration with the popular editor, providing a familiar creation environment
+- **Framework Files as Rules** - Using outlines as rules for creation ensures consistent reference to the framework while writing, with real-time framework update capabilities (can be enabled in settings) - meaning content that deviates from the outline will automatically update the framework.
+
+## Future Development
+
+- Optimize analysis mode to analyze various factors of completed novels saved in the working directory, such as characters, environmental backgrounds, writing styles, etc., for learning reference
+- Add knowledge base integration, with web crawlers or browser automation to generate local knowledge bases
+- Add cloud analysis functions to analyze which novel content is particularly popular with readers recently, analyze which reader preferences novel ratings reflect, or read and summarize reader comments on published novels from novel websites or apps, providing reference for future novel serialization
+
+## Legal Notice
+
+**Please note** that Roo-AINovel makes no representations or warranties about any code, model, or other tool provided or made available, or any related third-party tool or any output results. You assume all risks associated with the use of such tools or outputs.
+
+## License
 
 [Apache 2.0 © 2025 Roo-AINovel, Inc.](./LICENSE)
 
 ---
 
-**Gaudeix de l'experiència creativa amb Roo-AINovel!** 
+**Enjoy the creative experience with Roo-AINovel!** 

@@ -1,17 +1,9 @@
 {
-<<<<<<< Updated upstream
-	"name": "roo-cline",
-	"displayName": "%extension.displayName%",
-	"description": "%extension.description%",
-	"publisher": "RooVeterinaryInc",
-	"version": "3.19.1",
-=======
 	"name": "roo-ainovel",
 	"displayName": "%extension.displayName%",
 	"description": "%extension.description%",
 	"publisher": "RooVeterinaryInc",
 	"version": "1.0.3",
->>>>>>> Stashed changes
 	"icon": "assets/icons/icon.png",
 	"galleryBanner": {
 		"color": "#617A91",
@@ -50,14 +42,9 @@
 		"sonnet",
 		"ai",
 		"llama",
-<<<<<<< Updated upstream
-		"roo code",
-		"roocode"
-=======
 		"roo-ainovel",
 		"roo-code",
 		"rooainovel"
->>>>>>> Stashed changes
 	],
 	"activationEvents": [
 		"onLanguage",

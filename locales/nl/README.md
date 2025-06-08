@@ -23,6 +23,24 @@ Roo-AINovel is gebaseerd op Roo Code (een VSCode-extensie voor AI-ondersteunde i
 
 ---
 
+## Waarom deze extensie?
+
+De maker houdt van het lezen van romans en heeft eerder geprobeerd ze te schrijven, maar ondervond moeilijkheden vanwege beperkingen in schrijfvaardigheden. Na het bestuderen van AI-toepassingen en het verkennen van verschillende AI-tools voor romans, ontstond het idee om een eigen AI-tool voor romans te maken.
+
+---
+
+## Waarom als VSCode-extensie?
+
+De voordelen zijn te talrijk:
+1. VSCode is een uitstekende tekstverwerker, geschikt voor alle tekstbewerkingsscenario's, inclusief het schrijven van romans - voor het schrijven van romans is het bijna overkwalificeerd.
+2. Git kan worden gebruikt om romans te beheren.
+3. AI-plugins voor VSCode, zoals ROOcode, Cline en Cursor, zijn allemaal gebaseerd op modificaties van VSCode. Deze tools hebben een volwassen AI-integratie, waardoor ze ideaal zijn voor aanpassing in AI-romanapplicaties.
+4. De maker heeft geleerd om AI-tools zoals ROOcode en Cline te gebruiken voor programmeren tijdens het leren over AI, en dit project is geprogrammeerd met behulp van deze AI-codetools.
+5. De maker hoopt een betere omgeving en tools te bieden voor degenen die hun eigen romans willen schrijven.
+6. Toekomstige integratie met andere diensten is handig, zoals ondersteuning voor clouddiensten en het gebruik van de MCP-service.
+
+---
+
 ## Wat kan Roo-AINovel doen?
 
 - 📝 **Tekstgeneratie** - Hoogwaardige romaninhoud en hoofdstukken creëren
@@ -49,32 +67,28 @@ Roo-AINovel is uitgerust met krachtige creatieve hulpmiddelen:
 - Bestanden lezen en schrijven - Direct werken met je romanbestanden in VS Code
 - Romanstructuurgenerator - Snel romanstructuren en hoofdstukschema's maken
 - Formaatconverter - Vrij converteren tussen formaten zoals Markdown, TXT, Word, etc.
-- Karakterkaartgenerator - Gedetailleerde karakterprofielen en relatiediagrammen maken
-- Plotconflictdetectie - Automatisch tegenstrijdigheden in het verhaal identificeren
-- Stijlconsistentiecontrole - Een uniforme stijl in de hele tekst behouden
-- Meer functionaliteiten uitbreiden met MCP
+- Romanannotaties - Belangrijke creatieve AI-intenties annoteren voor referentie tijdens het bewerken
+- Romanstijlimitatie - Leren van anderen om je eigen unieke stijl te ontwikkelen
 
-## Personalisatie
-
-Pas Roo-AINovel aan volgens jouw creatieve behoeften:
-
-- **Aangepaste instructies** - Persoonlijke schrijfvoorkeuren en stijlvereisten instellen
-- **Aangepaste modi** - Specifieke ondersteuningsmodi maken voor bepaalde soorten romanschrijven
-- **Ondersteuning voor lokale modellen** - Compatibel met het gebruik van lokale AI-modellen om creatieve privacy te beschermen
-- **Automatische operatie-instellingen** - Repetitieve taken vereenvoudigen en creatieve efficiëntie verhogen
-
-## Projecthoogtepunten
+## Belangrijkste kenmerken
 
 - **Gericht op romanschrijven** - Volledig aangepaste AI-assistent voor het proces van romanschrijven
 - **Multimodale ondersteuning** - Uitgebreide ondersteuning voor tekstgeneratie, structuurplanning, stijlanalyse, etc.
 - **Formaatdiversiteit** - Compatibel met meerdere bestandsformaten en exportopties
 - **Lokale implementatie** - Compatibel met lokale AI-modellen om creatieve privacy te beschermen
 - **Open architectuur** - Gebaseerd op het MCP-protocol, met onbeperkt uitbreidbare functionaliteiten
-- **VSCode-integratie** - Naadloze integratie met de populaire editor, biedt een vertrouwde creatieve omgeving
+- **VSCode-integratie** - Naadloze integratie met de populaire editor, biedt een vertrouwde omgeving voor creatie
+- **Structuurbestanden als regels** - Het gebruik van schema's als regels voor creatie biedt voortdurende referentie naar de structuur tijdens het schrijven, met mogelijkheden voor real-time structuurupdates (kan worden ingeschakeld in instellingen) - dit betekent dat inhoud die afwijkt van het schema automatisch de structuur zal bijwerken.
 
-## Disclaimer
+## Toekomstige ontwikkeling
 
-**Let op**: Roo-AINovel doet geen enkele toezegging of garantie met betrekking tot enige geleverde of beschikbare code, model of ander hulpmiddel, of enig gerelateerd hulpmiddel van derden of enige resultaatoutput. Je aanvaardt alle risico's die verbonden zijn aan het gebruik van dergelijke hulpmiddelen of outputs.
+- Optimalisatie van de analysemodus voor het analyseren van verschillende factoren van voltooide romans opgeslagen in de werkdirectory, zoals personages, achtergrondmilieus, schrijfstijlen, etc., voor leerdoeleinden
+- Toevoegen van kennisbasisintegratie met webcrawlers of browserautomatisering om lokale kennisbanken te bouwen
+- Toevoegen van cloudanalysefuncties voor het analyseren welke romaninhoud recentelijk bijzonder populair is bij lezers, analyseren welke lezersvoorkeuren worden weerspiegeld in romanbeoordelingen, of het lezen en samenvatten van lezerscommentaren op gepubliceerde romans van websites of roman-apps, wat referentie biedt voor toekomstige romanreeksen
+
+## Juridische kennisgeving
+
+**Let op**, Roo-AINovel doet geen enkele toezegging of garantie met betrekking tot enige geleverde of beschikbare code, model of ander hulpmiddel, of enig gerelateerd hulpmiddel van derden of enige resultaatoutput. Je aanvaardt alle risico's die verbonden zijn aan het gebruik van dergelijke hulpmiddelen of resultaten.
 
 ## Licentie
 

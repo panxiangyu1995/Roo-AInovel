@@ -15,66 +15,80 @@ English • [Català](locales/ca/README.md) • [Deutsch](locales/de/README.md) 
   <h1>Roo-AINovel</h1>
 </div>
 
-**Roo-AINovel** ist ein auf [Roo Code](https://github.com/RooCodeInc/Roo-Code) basierendes VSCode-Plugin zur KI-unterstützten Romanerstellung. Es transformiert die intelligenten Code-Bearbeitungsfähigkeiten von Roo Code in ein Hilfsmittel für die Romanerstellung und unterstützt Autoren bei der Konzeptentwicklung, Gliederungserstellung, Kapitelausarbeitung und Inhaltsverfeinerung.
+**Roo-AINovel** ist eine VSCode-Erweiterung für KI-unterstützte Romanerstellung, entwickelt auf Basis von [Roo Code](https://github.com/RooCodeInc/Roo-Code). Sie verwandelt die intelligenten Code-Bearbeitungsfunktionen von Roo Code in ein Hilfsmittel für die Romanerstellung und unterstützt Autoren bei der Konzepterstellung, Gliederungsgenerierung, Kapitelschreibung und Inhaltsverfeinerung.
 
 ## Projektherkunft
 
-Roo-AINovel basiert auf Roo Code (einem KI-gestützten VSCode-Plugin für intelligente Code-Bearbeitung) und erweitert dessen leistungsstarke KI-Unterstützungsfähigkeiten vom Bereich der Code-Bearbeitung auf den Bereich der literarischen Kreation. Wir haben die Kernarchitektur und KI-Interaktionsfähigkeiten des Originalprojekts beibehalten und gleichzeitig die Benutzeroberfläche, Werkzeuge und Funktionen neu gestaltet, um sie vollständig an den Prozess der Romanerstellung anzupassen.
+Roo-AINovel basiert auf Roo Code (einer VSCode-Erweiterung für intelligente Code-Bearbeitung mit KI) und erweitert dessen leistungsstarke KI-Unterstützungsfunktionen vom Bereich der Code-Bearbeitung auf die literarische Kreation. Wir haben die zentrale Architektur und die KI-Interaktionsfähigkeiten des ursprünglichen Projekts beibehalten und gleichzeitig die Benutzeroberfläche, Tools und Funktionen neu gestaltet, um sie vollständig an den Prozess der Romanerstellung anzupassen.
 
 ---
 
-## Was kann Roo-AINovel?
+## Warum diese Erweiterung?
 
-- 📝 **Texterstellung** - Erstellung hochwertiger Romaninhalte und Kapitel
-- 🏗️ **Strukturaufbau** - Gestaltung vollständiger Romanrahmen und Charakterbeziehungen
-- 🔍 **Fehlerkorrektur** - Diagnose und Behebung von Textproblemen
-- ✨ **Inhaltsverbesserung** - Optimierung von Schreibstil, Dialogen und Szenenbeschreibungen
-- 🔬 **Romananalyse** - Analyse von Stil, Struktur und Themen des Werks
-- 🎬 **Drehbuchadaption** - Umwandlung von Romaninhalten in professionelles Drehbuchformat
-- 🎭 **Stilimitation** - Erstellung von Inhalten, die den Stil bestimmter Autoren imitieren
-- 💡 **Kreative Inspiration** - Bereitstellung kreativer Ideen und Methoden aus verschiedenen Perspektiven
-- 🖼️ **Visueller Textmodus** - Erstellung herunterladbarer Dokumente mit gemischtem Text und Bild
+Der Entwickler liebt es, Romane zu lesen, und hat selbst versucht, Romane zu schreiben, hatte aber aufgrund mangelnder Schreibfähigkeiten Schwierigkeiten. Nach dem Kennenlernen von KI-Anwendungen und der Erkundung verschiedener KI-Roman-Tools entstand die Idee, ein eigenes KI-Roman-Tool zu entwickeln.
+
+---
+
+## Warum als VSCode-Erweiterung?
+
+Es gibt zu viele Vorteile:
+1. VSCode ist ein hervorragender Texteditor, geeignet für alle Textbearbeitungsszenarien einschließlich Romanschreiben - es ist fast überqualifiziert für das Schreiben von Romanen.
+2. Git kann für die Romanverwaltung verwendet werden.
+3. VSCode KI-Plugins wie ROOcode, Cline und Cursor basieren alle auf VSCode-Modifikationen. Diese Tools haben eine ausgereifte KI-Integration, was sie ideal für die Anpassung zu KI-Roman-Anwendungen macht.
+4. Der Entwickler lernte während des KI-Lernprozesses, KI-Tools wie ROOcode und Cline für die Programmierung zu verwenden, und dieses Projekt wurde mit diesen KI-Code-Tools programmiert.
+5. Der Entwickler hofft, eine bessere Umgebung und bessere Tools für diejenigen bereitzustellen, die ihre eigenen Romane schreiben möchten.
+6. Die zukünftige Integration mit anderen Diensten ist bequem, wie z.B. Cloud-Service-Unterstützung und MCP-Service-Nutzung.
+
+---
+
+## Was kann Roo-AINovel tun?
+
+- 📝 **Texterstellung** - Erstelle hochwertige Romaninhalte und Kapitel
+- 🏗️ **Strukturaufbau** - Entwerfe komplette Romanrahmen und Charakterbeziehungen
+- 🔍 **Fehlerkorrektur** - Diagnostiziere und behebe Textprobleme
+- ✨ **Inhaltsverbesserung** - Optimiere Schreibstil, Dialoge und Szenenbeschreibungen
+- 🔬 **Romananalyse** - Analysiere Stil, Struktur und Themen des Werks
+- 🎬 **Drehbuchadaption** - Wandle Romaninhalte in professionelles Drehbuchformat um
+- 🎭 **Stilimitation** - Erstelle Inhalte, die den Stil bestimmter Autoren nachahmen
+- 💡 **Kreative Inspiration** - Biete kreative Ideen und Methoden aus verschiedenen Perspektiven
+- 🖼️ **Visueller Textmodus** - Erstelle herunterladbare gemischte Text- und Bilddokumente
 
 ## Schnellstart
 
-1. VS Code installieren
-2. Roo-AINovel-Plugin installieren
-3. KI-Modellschnittstelle konfigurieren (unterstützt verschiedene KI-Dienstanbieter)
-4. Mit Ihrer ersten kreativen Aufgabe beginnen
+1. Installiere VS Code
+2. Installiere die Roo-AINovel-Erweiterung
+3. Konfiguriere die KI-Modellschnittstelle (kompatibel mit verschiedenen KI-Dienstanbietern)
+4. Starte deine erste kreative Aufgabe
 
 ## Intelligente Werkzeuge
 
-Roo-AINovel ist mit leistungsstarken Kreativitätshilfsmitteln ausgestattet:
+Roo-AINovel ist mit leistungsstarken Kreationshilfsmitteln ausgestattet:
 
-- Lesen und Schreiben von Dateien - Direktes Arbeiten mit Ihren Romandateien in VS Code
-- Romanstruktur-Generator - Schnelles Erstellen von Romanrahmen und Kapitelgliederungen
-- Formatkonverter - Freie Konvertierung zwischen Formaten wie Markdown, TXT, Word usw.
-- Charakterkarten-Generator - Erstellung detaillierter Charakterprofile und Beziehungsdiagramme
-- Handlungskonflikt-Erkennung - Automatische Identifizierung von Widersprüchen in der Handlung
-- Stilkonsistenzprüfung - Aufrechterhaltung eines einheitlichen Stils im gesamten Text
-- Erweiterung weiterer Funktionen mit MCP
+- Lesen und Schreiben von Dateien - Arbeite direkt mit deinen Romandateien in VS Code
+- Romanstruktur-Generator - Erstelle schnell Romanrahmen und Kapitelgliederungen
+- Formatkonverter - Konvertiere frei zwischen Formaten wie Markdown, TXT, Word usw.
+- Romananmerkungen - Annotiere wichtige KI-Kreativabsichten als Referenz für Überarbeitungen
+- Romanstil-Imitation - Lerne von anderen, um deinen eigenen einzigartigen Stil zu entwickeln
 
-## Personalisierung
+## Hauptmerkmale
 
-Passen Sie Roo-AINovel an Ihre kreativen Bedürfnisse an:
-
-- **Benutzerdefinierte Anweisungen** - Festlegung personalisierter Schreibpräferenzen und Stilanforderungen
-- **Benutzerdefinierte Modi** - Erstellung spezieller Unterstützungsmodi für bestimmte Arten der Romanerstellung
-- **Unterstützung lokaler Modelle** - Unterstützung für die Verwendung lokaler KI-Modelle zum Schutz der kreativen Privatsphäre
-- **Automatisierungseinstellungen** - Vereinfachung sich wiederholender Aufgaben und Steigerung der kreativen Effizienz
-
-## Projekt-Highlights
-
-- **Fokus auf Romanerstellung** - Vollständig für den Romanerstellungsprozess angepasster KI-Assistent
+- **Fokus auf Romanerstellung** - KI-Assistent vollständig für den Romanerstellungsprozess angepasst
 - **Multimodale Unterstützung** - Umfassende Unterstützung für Texterstellung, Strukturplanung, Stilanalyse usw.
-- **Formatvielfalt** - Unterstützung mehrerer Dateiformate und Exportoptionen
-- **Lokale Bereitstellung** - Unterstützung lokaler KI-Modelle zum Schutz der kreativen Privatsphäre
-- **Offene Architektur** - Basierend auf dem MCP-Protokoll mit unbegrenzten erweiterbaren Funktionen
-- **VSCode-Integration** - Nahtlose Integration mit dem beliebten Editor, bietet eine vertraute kreative Umgebung
+- **Formatvielfalt** - Kompatibel mit mehreren Dateiformaten und Exportoptionen
+- **Lokale Bereitstellung** - Kompatibel mit lokalen KI-Modellen zum Schutz der kreativen Privatsphäre
+- **Offene Architektur** - Basierend auf dem MCP-Protokoll, mit unbegrenzt erweiterbaren Funktionen
+- **VSCode-Integration** - Nahtlose Integration mit dem beliebten Editor, bietet eine vertraute Kreationsumgebung
+- **Rahmendateien als Regeln** - Die Verwendung von Gliederungen als Regeln für die Erstellung gewährleistet eine konsistente Referenz zum Rahmen während des Schreibens, mit Echtzeit-Rahmenaktualisierungsfunktionen (kann in den Einstellungen aktiviert werden) - das bedeutet, dass Inhalte, die von der Gliederung abweichen, den Rahmen automatisch aktualisieren.
 
-## Haftungsausschluss
+## Zukünftige Entwicklung
 
-**Bitte beachten Sie**, dass Roo-AINovel keine Zusicherungen oder Garantien bezüglich bereitgestellter oder verfügbarer Codes, Modelle oder anderer Tools, oder damit verbundener Drittanbieter-Tools oder jeglicher Ergebnisausgaben macht. Sie übernehmen alle Risiken im Zusammenhang mit der Verwendung solcher Tools oder Ausgaben.
+- Optimierung des Analysemodus zur Analyse verschiedener Faktoren abgeschlossener Romane, die im Arbeitsverzeichnis gespeichert sind, wie Charaktere, Umgebungshintergründe, Schreibstile usw., als Lernreferenz
+- Hinzufügen von Wissensbasisintegration mit Webcrawlern oder Browser-Automatisierung zur Generierung lokaler Wissensbasen
+- Hinzufügen von Cloud-Analysefunktionen zur Analyse, welche Romaninhalte bei Lesern besonders beliebt sind, welche Leserpräferenzen Romanbewertungen widerspiegeln oder zum Lesen und Zusammenfassen von Leserkommentaren zu veröffentlichten Romanen von Romanwebsites oder Apps, als Referenz für zukünftige Romanfortsetzungen
+
+## Rechtlicher Hinweis
+
+**Bitte beachte**, dass Roo-AINovel keine Zusicherungen oder Garantien für Code, Modelle oder andere bereitgestellte oder verfügbare Tools, oder für damit verbundene Drittanbieter-Tools oder Ausgabeergebnisse gibt. Du übernimmst alle Risiken, die mit der Verwendung solcher Tools oder Ausgaben verbunden sind.
 
 ## Lizenz
 
@@ -82,4 +96,4 @@ Passen Sie Roo-AINovel an Ihre kreativen Bedürfnisse an:
 
 ---
 
-**Genießen Sie das kreative Erlebnis mit Roo-AINovel!** 
+**Genieße die kreative Erfahrung mit Roo-AINovel!** 
