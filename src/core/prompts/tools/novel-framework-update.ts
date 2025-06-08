@@ -1,21 +1,23 @@
 import { ToolArgs } from "./types"
 
-export function getNovelFrameworkUpdateDescription(_args?: ToolArgs): string {
-  return `## novel_framework_update
+export function getNovelFrameworkUpdateDescription(): string {
+    return `## novel_framework_update
+    
+更新小说框架内容。
 
-Automatically update the novel framework based on current content. It checks for consistency with existing framework and updates accordingly.
+### 参数:
+- \`content\`: 更新的内容
+- \`updateType\`: 更新类型（可选，如"添加"、"修改"、"删除"等）
 
-### Parameters:
-- \`content\` (required): The new content that should be analyzed to update the framework
-- \`updateType\` (optional): The type of update to perform (e.g., 'chapter', 'character', 'world', 'all')
-
-### Example:
+### 示例:
 \`\`\`json
 {
-  "content": "Chapter 1: The Beginning\\n\\nAs John walked through the forest, he noticed...",
-  "updateType": "chapter"
+  "name": "novel_framework_update",
+  "params": {
+    "content": "第三章将描述主角遇到的第一个挑战",
+    "updateType": "添加章节"
+  }
 }
 \`\`\`
-
-Use this tool when you've generated new content and want to automatically update the novel framework to maintain consistency. The tool will analyze the content, compare it with the existing framework, and make necessary updates while preserving the framework structure.`
+`;
 } 

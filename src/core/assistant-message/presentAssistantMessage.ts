@@ -31,8 +31,8 @@ import { contentExpansionTool } from "../tools/contentExpansionTool"
 import { inspirationTool } from "../tools/inspirationTool"
 import { imitationTool } from "../tools/imitationTool"
 import { novelToScriptTool } from "../tools/novelToScriptTool"
-// 暂时注释掉有问题的导入
-// import { novelAnalysisTool } from "../tools/novelAnalysisTool"
+
+import { novelAnalysisTool } from "../tools/novelAnalysisTool"
 import { novelContentSearchTool } from "../tools/novelContentSearchTool"
 
 import { checkpointSave } from "../checkpoints"

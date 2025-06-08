@@ -23,8 +23,6 @@ import { getSwitchModeDescription } from "./switch-mode"
 import { getNewTaskDescription } from "./new-task"
 import { getCodebaseSearchDescription } from "./codebase-search"
 import { CodeIndexManager } from "../../../services/code-index/manager"
-<<<<<<< Updated upstream
-=======
 import { getNovelCommentDescription } from "./novel-comment"
 import { getFormatConverterDescription } from "./format-converter"
 import { getNovelFrameworkRefineDescription } from "./novel-framework-refine"
@@ -36,7 +34,6 @@ import { getNovelToScriptDescription } from "./novel-to-script"
 import { getNovelAnalysisDescription } from "./novel-analysis"
 import { getNovelContentSearchDescription } from "./novel-content-search"
 import { getComicGeneratorDescription } from "./comic-generator"
->>>>>>> Stashed changes
 
 // Map of tool names to their description functions
 const toolDescriptionMap: Record<string, (args: ToolArgs) => string | undefined> = {
@@ -57,8 +54,6 @@ const toolDescriptionMap: Record<string, (args: ToolArgs) => string | undefined>
 	new_task: (args) => getNewTaskDescription(args),
 	insert_content: (args) => getInsertContentDescription(args),
 	search_and_replace: (args) => getSearchAndReplaceDescription(args),
-<<<<<<< Updated upstream
-=======
 	novel_comment: () => getNovelCommentDescription(),
 	format_converter: () => getFormatConverterDescription(),
 	novel_framework_refine: () => getNovelFrameworkRefineDescription(),
@@ -70,7 +65,6 @@ const toolDescriptionMap: Record<string, (args: ToolArgs) => string | undefined>
 	novel_analysis: () => getNovelAnalysisDescription(),
 	novel_content_search: () => getNovelContentSearchDescription(),
 	comic_generator: () => getComicGeneratorDescription(),
->>>>>>> Stashed changes
 	apply_diff: (args) =>
 		args.diffStrategy ? args.diffStrategy.getToolDescription({ cwd: args.cwd, toolOptions: args.toolOptions }) : "",
 }
@@ -168,8 +162,6 @@ export {
 	getInsertContentDescription,
 	getSearchAndReplaceDescription,
 	getCodebaseSearchDescription,
-<<<<<<< Updated upstream
-=======
 	getNovelCommentDescription,
 	getFormatConverterDescription,
 	getNovelFrameworkRefineDescription,
@@ -181,5 +173,4 @@ export {
 	getNovelAnalysisDescription,
 	getNovelContentSearchDescription,
 	getComicGeneratorDescription,
->>>>>>> Stashed changes
 }

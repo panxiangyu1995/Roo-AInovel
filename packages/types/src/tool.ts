@@ -4,9 +4,6 @@ import { z } from "zod"
  * ToolGroup
  */
 
-<<<<<<< Updated upstream
-export const toolGroups = ["read", "edit", "browser", "command", "mcp", "modes"] as const
-=======
 export const toolGroups = [
 	"read",
 	"edit",
@@ -23,7 +20,6 @@ export const toolGroups = [
 	"framework_refine",
 	"framework_update",
 ] as const
->>>>>>> Stashed changes
 
 export const toolGroupsSchema = z.enum(toolGroups)
 
@@ -52,8 +48,6 @@ export const toolNames = [
 	"new_task",
 	"fetch_instructions",
 	"codebase_search",
-<<<<<<< Updated upstream
-=======
 	"novel_comment",
 	"format_converter",
 	"novel_framework_refine",
@@ -65,7 +59,6 @@ export const toolNames = [
 	"novel_analysis",
 	"novel_content_search",
 	"comic_generator",
->>>>>>> Stashed changes
 ] as const
 
 export const toolNamesSchema = z.enum(toolNames)
@@ -85,8 +78,6 @@ export const toolUsageSchema = z.record(
 )
 
 export type ToolUsage = z.infer<typeof toolUsageSchema>
-<<<<<<< Updated upstream
-=======
 
 /**
  * ToolUse
@@ -184,4 +175,3 @@ export type TextContent = z.infer<typeof textContentSchema>
  */
 
 export type ToolResponse = string | TextContent[]
->>>>>>> Stashed changes

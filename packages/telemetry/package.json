@@ -1,6 +1,6 @@
 {
-	"name": "@roo-code/telemetry",
-	"description": "Roo Code telemetry service and clients.",
+	"name": "@roo-ainovel/telemetry",
+	"description": "Roo-AINovel telemetry service and clients.",
 	"version": "0.0.0",
 	"type": "module",
 	"exports": "./src/index.ts",
@@ -11,13 +11,13 @@
 		"clean": "rimraf dist .turbo"
 	},
 	"dependencies": {
-		"@roo-code/types": "workspace:^",
+		"@roo-ainovel/types": "workspace:^",
 		"posthog-node": "^4.7.0",
 		"zod": "^3.24.2"
 	},
 	"devDependencies": {
-		"@roo-code/config-eslint": "workspace:^",
-		"@roo-code/config-typescript": "workspace:^",
+		"@roo-ainovel/config-eslint": "workspace:^",
+		"@roo-ainovel/config-typescript": "workspace:^",
 		"@types/node": "^22.15.20",
 		"@types/vscode": "^1.84.0",
 		"vitest": "^3.1.3"

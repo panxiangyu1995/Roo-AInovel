@@ -61,16 +61,26 @@ export const toolParamNames = [
 	"args",
 	"start_line",
 	"end_line",
-<<<<<<< Updated upstream
-	"query",
-=======
 	"cwd",
 	"result",
 	"style",
 	"layout",
 	"panels",
 	"updateType",
->>>>>>> Stashed changes
+	"query",
+	"explain",
+	"area",
+	"ratio",
+	"output_path",
+	"use_comments",
+	"output_dir",
+	"merge",
+	"preserve_paragraphs",
+	"topic",
+	"aspect",
+	"count",
+	"title",
+	"type",
 ] as const
 
 export type ToolParamName = (typeof toolParamNames)[number]
@@ -170,8 +180,6 @@ export interface SearchAndReplaceToolUse extends ToolUse {
 		Partial<Pick<Record<ToolParamName, string>, "use_regex" | "ignore_case" | "start_line" | "end_line">>
 }
 
-<<<<<<< Updated upstream
-=======
 export interface NovelCommentToolUse extends ToolUse {
 	name: "novel_comment"
 	params: Partial<Pick<Record<ToolParamName, string>, "path" | "line" | "content" | "explain">>
@@ -227,7 +235,6 @@ export interface ComicGeneratorToolUse extends ToolUse {
 	params: Partial<Pick<Record<ToolParamName, string>, "content" | "style" | "layout" | "panels" | "output_path">>
 }
 
->>>>>>> Stashed changes
 // Define tool group configuration
 export type ToolGroupConfig = {
 	tools: readonly string[]
@@ -253,21 +260,17 @@ export const TOOL_DISPLAY_NAMES: Record<ToolName, string> = {
 	insert_content: "insert content",
 	search_and_replace: "search and replace",
 	codebase_search: "codebase search",
-<<<<<<< Updated upstream
-} as const
-
-=======
 	novel_comment: "add novel comments",
-	format_converter: "convert file formats",
+	format_converter: "convert formats",
 	novel_framework_refine: "refine novel framework",
 	novel_framework_update: "update novel framework",
 	content_expansion: "expand content",
 	inspiration: "generate inspiration",
-	imitation: "imitate writing style",
-	novel_to_script: "convert novel to script",
+	imitation: "imitate style",
+	novel_to_script: "convert to script",
 	novel_analysis: "analyze novel",
 	novel_content_search: "search novel content",
-	comic_generator: "generate comics",
+	comic_generator: "generate comic",
 } as const
 
 export const toolGroups = [
@@ -287,7 +290,6 @@ export const toolGroups = [
 	"framework_update",
 ] as const
 
->>>>>>> Stashed changes
 // Define available tool groups.
 export const TOOL_GROUPS: Record<ToolGroup, ToolGroupConfig> = {
 	read: {
@@ -301,9 +303,6 @@ export const TOOL_GROUPS: Record<ToolGroup, ToolGroupConfig> = {
 		],
 	},
 	edit: {
-<<<<<<< Updated upstream
-		tools: ["apply_diff", "write_to_file", "insert_content", "search_and_replace"],
-=======
 		tools: [
 			"apply_diff",
 			"write_to_file",
@@ -311,7 +310,6 @@ export const TOOL_GROUPS: Record<ToolGroup, ToolGroupConfig> = {
 			"search_and_replace",
 			"novel_comment",
 		],
->>>>>>> Stashed changes
 	},
 	browser: {
 		tools: ["browser_action"],
@@ -326,11 +324,29 @@ export const TOOL_GROUPS: Record<ToolGroup, ToolGroupConfig> = {
 		tools: ["switch_mode", "new_task"],
 		alwaysAvailable: true,
 	},
+	formatter: {
+		tools: ["format_converter"],
+	},
+	inspiration: {
+		tools: ["inspiration"],
+	},
+	imitation: {
+		tools: ["imitation"],
+	},
+	script_adaptation: {
+		tools: ["novel_to_script"],
+	},
+	analysis: {
+		tools: ["novel_analysis", "novel_content_search"],
+	},
+	comic: {
+		tools: ["comic_generator"],
+	},
 	framework_refine: {
 		tools: ["novel_framework_refine"],
 	},
 	framework_update: {
-		tools: ["novel_framework_update"],
+		tools: ["novel_framework_update", "content_expansion"],
 	},
 }
 

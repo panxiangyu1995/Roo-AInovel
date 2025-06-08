@@ -1,6 +1,6 @@
 {
-	"name": "@roo-code/build",
-	"description": "ESBuild utilities for Roo Code.",
+	"name": "@roo-ainovel/build",
+	"description": "ESBuild utilities for Roo-AINovel.",
 	"private": true,
 	"type": "module",
 	"main": "./dist/index.js",
@@ -16,8 +16,8 @@
 		"zod": "^3.24.2"
 	},
 	"devDependencies": {
-		"@roo-code/config-eslint": "workspace:^",
-		"@roo-code/config-typescript": "workspace:^",
+		"@roo-ainovel/config-eslint": "workspace:^",
+		"@roo-ainovel/config-typescript": "workspace:^",
 		"@types/node": "^22.15.20",
 		"vitest": "^3.1.3"
 	}
