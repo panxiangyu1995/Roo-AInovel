@@ -1,0 +1,702 @@
+# 项目修改日志
+
+## 2025年6月1日22:48:21
+
+### 项目名称修改
+
+- 将项目中所有"Roo Code"替换为"Roo-AINovel"
+    - 修改了README.md中的项目名称和描述
+    - 修改了webview-ui/src/utils/docLinks.ts中的文档链接和描述
+    - 修改了webview-ui/src/stories/Welcome.mdx中的欢迎信息
+    - 修改了webview-ui/src/i18n/locales/zh-CN/welcome.json中的欢迎文本
+    - 修改了webview-ui/src/i18n/locales/zh-CN/settings.json中的设置文本
+    - 修改了webview-ui/src/i18n/locales/zh-CN/mcp.json中的MCP服务描述
+    - 修改了webview-ui/src/i18n/locales/zh-CN/chat.json中的聊天界面文本
+    - 修改了webview-ui/src/i18n/locales/zh-CN/account.json中的账户文本
+    - 修改了src/package.nls.json中的扩展名称和相关描述
+    - 修改了src/package.nls.zh-CN.json中的扩展名称和相关描述
+    - 修改了src/package.nls.zh-TW.json中的扩展名称和相关描述
+    - 修改了src/package.json中的作者名称、GitHub链接和关键词
+    - 修改了src/shared/package.ts中的输出通道名称
+
+### 文档链接更新
+
+- 将文档链接从https://docs.roocode.com/更新为https://docs.rooainovel.com/
+
+### 功能增强
+
+- 修改了src/shared/modes.ts，替换了原有的代码模式为小说创作相关模式：
+    - 添加了"文字生成模式"(writer)：专注于生成高质量小说章节和内容
+    - 添加了"小说框架模式"(planner)：从简短提示词生成完整小说框架
+    - 添加了"问答模式"(Ask)：解答写作相关问题
+    - 添加了"纠错模式"(editor)：系统化诊断和修正文本问题
+    - 添加了"正文优化模式"(optimizer)：全方位优化小说内容
+    - 添加了"格式转换模式"(formatter)：将Markdown格式转换为纯文本
+    - 添加了"小说分析模式"(analysis)：分析小说类型、结构和风格
+    - 添加了"剧本改编模式"(script-mode)：将小说改编为剧本
+    - 添加了"仿写模式"(imitation)：模仿特定作者风格创作
+    - 添加了"扩写模式"(expansion)：扩展和丰富简要内容
+    - 添加了"灵感模式"(inspiration)：提供创意思维和灵感激发
+    - 添加了"图文模式"(visual-text)：创建图文混合内容
+
+## 2025年6月1日
+
+### 项目名称变更：从"Roo Code"改为"Roo-AINovel"
+
+#### 修改内容：
+
+1. 更新了 `README.md` 文件中的项目名称
+2. 更新了 `webview-ui/src/utils/docLinks.ts` 中的文档链接
+3. 更新了 `webview-ui/src/stories/Welcome.mdx` 中的项目名称
+4. 更新了以下本地化文件中的项目名称：
+    - 中文简体 (zh-CN)：
+        - `welcome.json`
+        - `settings.json`
+        - `mcp.json`
+        - `chat.json`
+        - `account.json`
+    - 中文繁体 (zh-TW)：
+        - `welcome.json`
+        - `settings.json`
+        - `mcp.json`
+        - `chat.json`
+        - `account.json`
+5. 更新了扩展配置文件：
+    - `src/package.nls.json`
+    - `src/package.nls.zh-CN.json`
+    - `src/package.nls.zh-TW.json`
+    - `src/package.json`
+    - `src/shared/package.ts`
+6. 修改了模式配置文件：
+    - `src/shared/modes.ts`：将代码相关模式替换为小说创作相关模式
+
+#### 文档链接更新：
+
+- 从 `https://docs.roocode.com/` 改为 `https://docs.rooainovel.com/`
+
+#### 配置项更新：
+
+- 将 `roo-cline.rooCodeCloudEnabled` 更新为 `roo-cline.rooAINovelCloudEnabled`
+
+# 开发日志
+
+## 2023-11-01: 工具组和模式修改
+
+### 修改内容
+
+1. 在`packages/types/src/tool.ts`中添加了新的工具组：
+   - `framework_refine`: 用于小说框架模式下的框架完善功能
+   - `framework_update`: 用于其他模式下的框架更新功能
+
+2. 在`src/shared/tools.ts`中更新了工具组配置：
+   - 从`edit`工具组中移除了`novel_framework_refine`和`novel_framework_update`工具
+   - 创建了新的`framework_refine`工具组，包含`novel_framework_refine`工具
+   - 创建了新的`framework_update`工具组，包含`novel_framework_update`工具
+
+3. 在`src/shared/modes.ts`中更新了各模式的工具组配置：
+   - 在小说框架模式(`planner`)中添加了`framework_refine`工具组
+   - 在其他所有模式中添加了`framework_update`工具组
+
+4. 修改了`src/core/prompts/tools/execute-command.ts`文件，更新了工具描述，明确指出该工具只应在创建新文件夹时使用
+
+### 目的
+
+1. 分离小说框架完善和更新功能，使其在不同模式下有明确的使用场景
+2. 确保`novel_framework_refine`工具只在小说框架模式下可用
+3. 确保`novel_framework_update`工具在除小说框架模式外的所有模式下可用
+4. 限制命令行工具的使用范围，只用于创建新文件夹
+
+### 注意事项
+
+1. 工具组的添加需要同时更新多个文件，确保类型定义和实际使用保持一致
+2. 修改模式配置时需要考虑所有相关模式，确保功能的完整覆盖
+3. 工具描述的修改需要考虑多语言支持，确保中英文描述一致
+
+## 2023-09-15 漫画生成工具开发
+
+### 新增文件
+
+- `src/core/tools/comicGeneratorTool.ts`: 漫画生成工具的主要实现，提供将文本内容转换为漫画风格的HTML内容的功能
+- `src/core/prompts/tools/comic-generator.ts`: 漫画生成工具的描述文件，定义了工具的参数和使用说明
+- `src/core/tools/index.ts`: 工具索引文件，注册所有工具，包括新增的漫画生成工具
+
+### 修改文件
+
+- `packages/types/src/tool.ts`: 添加了"comic"工具组和"comic_generator"工具名称，以及新的参数名称（style, layout, panels）
+- `src/shared/tools.ts`: 添加了ComicGeneratorToolUse接口定义，在TOOL_GROUPS中添加了comic工具组，在TOOL_DISPLAY_NAMES中添加了comic_generator工具的显示名称
+- `src/shared/modes.ts`: 在"Visual Text Mode"中添加了"comic"工具组
+- `src/core/prompts/tools/index.ts`: 导入并注册了漫画生成工具的描述函数
+- `src/core/assistant-message/presentAssistantMessage.ts`: 添加了对漫画生成工具的处理分支
+
+### 功能说明
+
+漫画生成工具（comic_generator）可以将文本内容转换为漫画风格的HTML内容，具有以下特点：
+
+1. 支持多种漫画风格：日式漫画（manga）、美式漫画（american）、欧式漫画（european）、Q版漫画（chibi）、极简漫画（minimalist）
+2. 支持多种布局方式：垂直布局（vertical）、水平布局（horizontal）、网格布局（grid）、自由布局（freeform）
+3. 可以指定面板数量（1-20）
+4. 自动分析文本内容，提取场景、对话和动作
+5. 生成包含SVG图形、对话气泡和动作描述的HTML文件
+6. 支持大型内容的分块处理
+
+### 修复记录
+
+- 2023-09-16: 修复了`src/shared/tools.ts`中的类型错误，在本地的`toolParamNames`数组中添加了"style"、"layout"和"panels"参数
+- 2023-09-16: 重新创建了`src/core/tools/index.ts`文件，注册所有工具，包括漫画生成工具
+
+### 后续工作
+
+1. 添加漫画生成工具的国际化支持
+2. 优化SVG图形生成，提供更多样化的图形元素
+3. 增加更多自定义选项，如颜色主题、字体样式等
+4. 添加预览功能，允许用户在生成前查看效果
+5. 实现图片导出功能，支持将HTML内容导出为图片格式
+
+## 2025-06-08 将novel-framework-refine工具改造为服务
+
+### 新增文件
+
+1. `docs/工具改服务流程.md` - 详细描述将novel-framework-refine工具改造为服务的流程
+2. `src/services/framework/interfaces/index.ts` - 框架服务的接口定义
+3. `src/services/framework/state-manager.ts` - 框架服务的状态管理器
+4. `src/services/framework/workflow-manager.ts` - 框架服务的工作流管理器
+5. `src/services/framework/config-manager.ts` - 框架服务的配置管理器
+6. `src/services/framework/FrameworkService.ts` - 框架服务的主类
+7. `src/services/framework/utils/common.ts` - 框架服务的通用工具函数
+
+### 修改文件
+
+1. `src/core/tools/novelFrameworkRefineTool.ts` - 将工具改造为服务的适配器
+2. `src/extension.ts` - 添加服务初始化和清理代码
+3. `src/core/prompts/tools/novel-framework-refine.ts` - 更新工具描述为服务适配器
+4. `src/core/assistant-message/presentAssistantMessage.ts` - 修改工具处理分支
+
+### 实现内容
+
+1. 将原有的工具逻辑迁移到服务中，实现单例模式
+2. 实现事件系统，用于状态变更通知
+3. 实现配置管理，支持自定义配置
+4. 实现工作流管理，支持动态注册工作流
+5. 实现工具适配器，保持向后兼容性
+
+### 注意事项
+
+1. 类型安全：确保所有接口和函数参数都有正确的类型定义
+2. 错误处理：实现全面的参数验证和错误处理
+3. 单例模式：确保服务只有一个实例
+4. 向后兼容：保留工具接口，通过适配器调用服务
+
+### 遗留问题
+
+1. 工作流函数尚未完全迁移到服务中，仍然从原始位置导入
+2. 国际化支持尚未完全实现，错误消息和提示暂时使用中文
+3. 模式检查逻辑尚未在服务中实现，仍依赖于工具层面的检查
+
+### 后续计划
+
+1. 完成工作流函数的迁移
+2. 实现完整的国际化支持
+3. 在服务中实现模式检查逻辑
+4. 添加更多单元测试和集成测试
+5. 优化性能和内存使用
+
+# 项目更新日志
+
+## 2023-08-17: 小说框架全局设置方案实施
+
+### 背景
+
+根据需求文档，我们需要将通用的rules系统改造为专门的小说框架全局设置系统，使小说框架功能更加直观、易用。
+
+### 实施内容
+
+#### 1. 框架处理功能
+- 添加了`processNovelFramework`函数，能够处理各种格式的小说框架文件
+- 支持Markdown标题格式、自定义分隔符格式和关键词识别格式
+
+#### 2. 文件命名与存储
+- 修改了`loadRuleFiles`函数，支持".rules.[小说名称]框架.md"或".rules.[小说名称]framework.md"命名方式
+- 保留了对传统规则文件的支持，确保向后兼容性
+
+#### 3. 自动更新框架功能
+- 创建了`novelFrameworkUpdateTool`工具，能够分析内容与框架的一致性并生成更新
+- 支持多种更新类型：章节、角色、世界观等
+- 添加了相关的类型定义和导出
+
+#### 4. 用户界面
+- 创建了`NovelFrameworkSettings`组件，提供简化的框架设置界面
+- 添加了框架使用说明和自动更新功能开关
+
+#### 5. 对话框激活按钮
+- 在对话框底部添加了框架激活按钮，用户可以直接将拖入对话框的框架文件设置为全局规则
+- 添加了文件检测和路径提取功能
+
+#### 6. 消息处理
+- 添加了处理框架设置和激活的后端逻辑
+- 添加了相关的消息类型和参数
+
+### 待完成内容
+- 在ModesView中集成小说框架设置界面
+- 调整小说框架模式与自动更新工具的集成
+
+### 文件修改列表
+1. src/core/prompts/sections/custom-instructions.ts - 添加processNovelFramework和修改loadRuleFiles
+2. src/core/tools/novelFrameworkUpdateTool.ts - 创建小说框架自动更新工具
+3. packages/types/src/tool.ts - 添加novel_framework_update到toolNames和updateType到toolParamNames
+4. src/shared/tools.ts - 添加NovelFrameworkUpdateToolUse接口和工具描述
+5. src/core/prompts/tools/novel-framework-update.ts - 创建工具描述文件
+6. webview-ui/src/components/framework/NovelFrameworkSettings.tsx - 创建小说框架设置界面
+7. webview-ui/src/components/chat/ChatTextArea.tsx - 添加框架激活按钮
+8. src/shared/WebviewMessage.ts - 添加新的消息类型和参数
+9. src/core/webview/webviewMessageHandler.ts - 添加处理框架设置和激活的代码
+10. packages/types/src/global-settings.ts - 添加autoUpdateEnabled到全局设置
+
+## 2023-11-10 小说框架工具增强
+
+### 1. 改进 novel_framework_update 工具
+
+- 在 `src/core/tools/novelFrameworkUpdateTool.ts` 中添加了 apply_diff 机制，使用 MultiSearchReplaceDiffStrategy 对小说框架进行更精确的更新
+- 添加了 applyFrameworkUpdate 辅助函数，提供了更精细的差异对比和智能更新机制
+- 增加了错误处理机制和回退策略，确保即使差异策略失败也能通过直接替换更新框架
+- 加入了更详细的更新过程状态提示
+
+### 2. 增强 novel_framework_refine 工具
+
+- 在 `src/core/tools/novel-framework-refine/index.ts` 中添加了与文字生成模式的无缝衔接
+- 增加了 askSwitchToWriterMode 和 switchToWriterMode 函数，允许用户在完成框架后直接切换到写作模式
+- 改进了交互选项，增加了框架完善后切换到写作模式的选项
+- 优化了用户体验流程，使框架开发到小说创作的过程更加流畅自然
+
+这些改进使小说框架工具更加智能和用户友好，提供了从框架设计到实际写作的完整工作流 
+
+## 2023-11-11 小说框架功能优化
+
+### 1. 优化章节规划功能
+
+- 在 `src/core/tools/novel-framework-refine/index.ts` 中将章节规划(chapter-outline)从情节部分分离出来，作为独立的内容部分
+- 调整了processOption函数中的case分支，单独处理章节规划相关选项
+- 更新了createFrameworkFile函数中的选项列表，将章节规划提升为与角色设计、情节大纲等并列的独立选项
+- 修改了handleNextStep函数中的areaNames映射，确保包含chapter-outline区域
+- 调整了章节规划在选项列表中的位置，将其从第3位移到第6位，放在叙事风格后面，优化了功能的逻辑顺序
+
+### 2. 强化框架完善流程
+
+- 重构了`handleNextStep`函数，确保持续询问用户完善框架的所有方面
+- 添加了`checkEssentialSections`函数，检测框架中是否包含所有必要部分
+- 添加了`createGenericOption`函数，为缺失的部分自动生成通用选项
+- 优化了选项展示逻辑，即使没有分析出具体需完善的选项，也会提供该部分的完善入口
+- 增强了用户提示，显示框架中尚未包含的基本部分列表
+- 始终提供"结束框架完善，切换到文字生成模式开始写作"选项，方便用户随时转入写作阶段
+- 重新组织了选项显示顺序，使用固定的`standardOrder`确保选项按一致顺序展示
+
+这些优化使章节规划成为小说框架的一个重要独立部分，与其他部分如角色设计、情节大纲等并列，提升了框架结构的清晰度和用户体验。同时，新的框架完善流程确保用户能够循序渐进地完成所有框架部分，实现从构思到写作的无缝过渡。
+
+## 2023-11-12 小说框架工具选项流程优化
+
+### 1. 解决askFollowupQuestionTool选项数量限制问题
+
+- 修改 `src/core/tools/novel-framework-refine/utils/common.ts` 中的 `formatOptionsMessage` 函数，增加对多选项的智能处理
+- 添加了自动处理机制，当选项总数超过6个时，按区域合并选项，优先选择每个区域的第一个选项
+- 为用户提供更清晰的区域标识，使用"【区域名称】"格式标注选项所属的框架部分
+- 优化了选项文本格式，使其更加简洁明了，便于用户选择
+
+### 2. 优化框架完善的交互流程
+
+- 完全重构 `src/core/tools/novel-framework-refine/index.ts` 中的 `handleNextStep` 函数，实现顺序完善流程
+- 添加自动检测当前完成区域和下一个要处理区域的逻辑，建立明确的框架完善路径
+- 优化用户选项展示，每次只询问一个部分的具体细节，避免选项过多造成混淆
+- 每次询问都提供"继续深入完善当前部分"、"跳到下一个部分"和"切换到写作模式"三个基本选项
+- 当存在缺失部分时，额外提供"添加缺失部分"选项，指导用户完成框架的所有必要部分
+- 增强了各个工作流模块的连续性，使用户可以按照自己的节奏完成框架的各个部分
+
+### 3. 改进章节大纲完善工作流
+
+- 创建 `src/core/tools/novel-framework-refine/utils/position.ts`，添加 `findSectionPosition` 等功能函数
+- 重构 `handleChapterOutlineWorkflow` 函数，支持用户连续完善章节大纲的各个方面
+- 为用户提供更具体的章节大纲选项，包括添加详细描述、重新规划结构、调整节奏等
+- 每次完善后提供明确的后续选项，包括继续深入完善、跳到下一部分或开始写作
+- 集成文字生成模式切换功能，实现从框架完善到写作的无缝过渡
+
+这些优化解决了小说框架工具中的选项限制问题，提升了用户完善框架的体验。新的交互流程更加直观、有序，使用户可以系统地完善框架的各个部分，同时保持足够的灵活性，允许用户按照自己的优先级和节奏进行创作。
+
+## 2023-11-13 扩展框架完善工具的选项数量
+
+### 1. 充分利用askFollowupQuestionTool的选项容量
+
+- 发现并确认`ask-followup-question.ts`工具描述中支持2-6个选项，而之前仅使用了4个选项
+- 修改`src/core/tools/novel-framework-refine/workflows/chapter-outline.ts`中的选项列表，为每个询问提供完整的6个选项
+- 在章节大纲完善流程中添加了更丰富的章节设计选项，如"增加章节内的角色发展描述"和"完善章节间的连贯性和伏笔"
+- 改进继续选项为6个，添加了"添加更多章节细节"、"调整章节结构"和"规划关键情节点"等更具体的选项
+
+### 2. 增强框架完善的深度和广度
+
+- 全面升级`src/core/tools/novel-framework-refine/index.ts`中的`handleNextStep`函数，增加更多的选项处理逻辑
+- 为每个框架部分增加"补充细节描述"和"拓展更多可能性"两个深化选项
+- 添加"对整个框架进行全面审查"选项，当用户完成所有基本部分时提供
+- 增强选项处理逻辑，为每个新增选项创建专门的处理函数和提示
+- 优化用户选择的识别逻辑，支持通过序号、关键词或选项描述多种方式选择
+
+这些改进显著提升了小说框架完善工具的功能深度和用户体验。通过提供6个全面的选项，用户可以更精确地控制框架完善的方向和深度，系统地完善框架的各个部分，最终获得一个更加完整、详细的小说创作框架。
+
+## 2023-11-14 统一所有工作流模块的选项数量和交互方式
+
+### 1. 统一所有工作流的选项数量为6个
+
+- 彻底重构`src/core/tools/novel-framework-refine/workflows/character.ts`文件，作为其他工作流的标准模板
+- 将原本使用2-4个选项的工作流全部升级为提供6个具体选项
+- 为角色设计工作流提供更丰富的选项，包括"完善主角设计"、"完善反派/对手设计"、"添加配角设计"等
+- 在继续选项中统一提供6个选择，包括"继续深入完善"、"添加更多细节"、"设计特定方面"等
+
+### 2. 统一工作流结构和交互流程
+
+- 为所有工作流模块采用相同的交互模式，确保用户体验的一致性
+- 使用`findSectionPosition`检测现有内容，动态调整提示和选项
+- 优化生成提示内容的方式，根据用户选择提供更专业、更具针对性的指导
+- 实现模块化的选项处理逻辑，使每个工作流都支持多轮交互和连续完善
+- 集成文字生成模式切换功能，在所有工作流中提供无缝过渡到写作阶段的选项
+
+### 3. 增强工作流的专业性和深度
+
+- 针对每个框架部分，提供更专业的提示和指导，如角色设计中的"性格驱动设计"、"多维度综合设计"等
+- 为已有内容和新创建内容提供不同的选项集，更好地适应不同的使用场景
+- 在系统提示中加入专业指导原则，确保生成内容符合小说创作的最佳实践
+- 增加文件内容显示功能，让用户能够实时看到修改后的内容
+
+这些改进使小说框架完善工具的所有组件保持一致的高质量标准和用户体验。通过统一的6选项模式和标准化的工作流结构，用户在完善框架的各个部分时能够获得连贯、专业的指导，大大提升了工具的实用性和易用性。
+
+## 2023-11-15 完成所有工作流模块的标准化和重构
+
+### 1. 彻底标准化所有工作流模块
+
+- 基于`character.ts`作为模板，重构了所有工作流模块文件，包括`theme.ts`、`style.ts`、`market.ts`、`world.ts`和`plot.ts`
+- 使用统一的工作流结构，确保所有模块具有相同的交互模式和功能组织方式
+- 改进了文件的导入结构，统一使用`path`、`fs/promises`等核心模块，确保文件操作的一致性和稳定性
+- 统一使用`findSectionPosition`函数检测现有内容，优化内容处理逻辑
+
+### 2. 全面升级所有工作流的选项系统
+
+- 为每个工作流模块实现两套完整的6选项方案：一套用于已有内容的完善，一套用于创建新内容
+- 为每个选项提供专业、具体的提示内容，确保AI助手能生成高质量的框架内容
+- 添加多种选择识别方式，包括选项序号和关键词匹配，提高选择的灵活性
+- 统一选项的展示格式和组织方式，提升用户体验的一致性
+
+### 3. 增强继续选项的统一性和功能
+
+- 为所有工作流模块添加统一的继续选项机制，提供6个标准选项
+- 每个模块的继续选项包括"继续深入完善"、"添加更多细节"、"调整特定方面"等
+- 添加"跳到下一个部分"和"结束框架完善，切换到写作模式"两个通用选项
+- 实现无缝切换到文字生成模式的功能，使用`recursivelyMakeClineRequests`调用`switch_mode`工具
+
+### 4. 优化错误处理和内容处理逻辑
+
+- 统一使用`safeExecute`函数进行错误处理，确保即使发生异常也能提供适当的反馈
+- 改进内容生成和处理逻辑，确保生成的内容符合预期格式，并在必要时进行调整
+- 添加更详细的错误信息，帮助用户理解可能的问题并采取适当的措施
+- 优化文件读写操作，确保内容的安全保存和正确加载
+
+这次全面重构完成了小说框架工具所有工作流模块的标准化，确保用户在使用任何模块时都能获得一致、专业的体验。通过提供丰富、专业的选项和明确的指导，用户能够更加深入、系统地完善小说框架的各个方面，为创作高质量的小说奠定坚实基础。
+
+## 2023-11-16 增强小说框架完善工具的创作辅助功能
+
+### 1. 添加"写作手法"工作流模块
+
+- 在`src/core/tools/novel-framework-refine/workflows/writing-technique.ts`中创建了写作手法工作流模块
+- 实现了`handleWritingTechniqueWorkflow`函数，支持用户完善各种具体写作手法
+- 添加了6种写作手法改进选项和6种新手法类型选项，包括描写技巧、对话设计、情景营造、伏笔呼应等
+- 提供连续完善写作手法的交互流程，可以深入各个具体技巧
+- 完整集成了无缝切换到写作模式的功能
+
+### 2. 优化小说题材处理功能
+
+- 创建了`src/core/tools/novel-framework-refine/workflows/genre.ts`文件，专门处理小说题材设定
+- 将题材类型（如修仙、武侠、科幻等）从主题元素部分分离，作为独立的小说题材部分
+- 设计了多种题材类型选项，包括修仙/仙侠、武侠/江湖、玄幻/奇幻、科幻/未来、都市/现代等
+- 实现了智能位置添加功能，将小说题材部分放置在核心概念之后、主要角色之前的合理位置
+- 添加了题材规则、题材融合、题材特色等方面的深度优化选项
+
+### 3. 增强框架生成和检测功能
+
+- 修改`generateBasicFramework`函数，在基础框架中添加小说题材和写作手法部分
+- 更新`checkEssentialSections`函数，将小说题材和写作手法添加到框架必要部分检查
+- 扩展`createGenericOption`函数，添加新部分的通用选项生成功能
+- 在`analyzeFramework`函数中添加对小说题材和写作手法的分析逻辑
+- 扩展`processOption`函数，处理新增的工作流选项和分类
+
+### 4. 统一UI和交互体验
+
+- 在`formatOptionsMessage`函数中添加新的区域名称映射，确保UI一致性
+- 所有新增工作流模块都保持6个选项的标准
+- 维持统一的交互流程和用户提示样式
+- 保证工作流之间的无缝切换和连贯体验
+
+这些增强使小说框架完善工具能够更全面地帮助作者处理小说创作的各个方面，特别是小说题材设定和具体写作手法，极大提升了工具的实用性和专业性。题材类型的独立化和写作手法的专门处理，使框架的各部分职责更加清晰，便于作者有针对性地进行创作决策。
+
+## 2023-11-17 修复小说框架题材和写作手法功能的一致性问题
+
+### 1. 修复区域名称映射
+
+- 在`src/core/tools/novel-framework-refine/utils/common.ts`中的`areaNames`映射中添加了缺失的"genre"(小说题材)区域名称
+- 在`src/core/tools/novel-framework-refine/index.ts`中的`standardOrder`数组和`areaNames`映射中添加了"writing-technique"(写作手法)和"genre"(小说题材)
+- 确保所有UI界面和选项显示中正确展示"小说题材"和"写作手法"区域名称
+- 修复了因区域名称缺失可能导致的UI显示问题和工作流执行问题
+
+### 2. 修复章节大纲工作流函数的返回值问题
+
+- 在`src/core/tools/novel-framework-refine/workflows/chapter-outline.ts`中修复了`handleChapterOutlineWorkflow`函数，确保所有代码路径都返回值
+- 添加了`success`变量跟踪章节内容更新是否成功
+- 统一使用`success || continueInCurrentSection`作为函数返回值，确保TypeScript编译器不会报错
+- 优化了工作流完成后的逻辑，使其更加清晰和可靠
+
+### 3. 统一工作流一致性
+
+- 再次审查所有工作流模块，确保导入和实现的完全一致性
+- 加强了对新添加功能的审查和测试流程，防止类似问题再次发生
+- 实施更严格的代码审查标准，确保功能完整性和一致性
+- 特别注意了框架完善过程中的区域顺序和名称映射的同步问题
+
+这些修复确保了小说框架完善工具在处理小说题材和写作手法等新增功能时的完整性和一致性，进一步提升了用户体验的连贯性和工具的专业性。通过这次修复，强化了代码维护的重要性和细节审查的必要性，为工具的持续完善奠定了更坚实的基础。
+
+## 2023-11-18 同步更新小说题材和写作手法选项
+
+### 1. 完善新框架创建选项列表
+
+- 更新`createFrameworkFile`函数中的选项列表，增加"小说题材"和"写作手法"选项
+- 将选项数量从11个增加到13个，使其与工作流模块数量保持一致
+- 调整了选项编号，将"小说题材"放在第1位，"写作手法"放在第13位
+- 添加对应的处理逻辑，确保用户选择这些选项时能正确调用相应的工作流
+
+### 2. 优化选项识别逻辑
+
+- 完善了选项识别逻辑，确保用户输入的数字或关键词能够准确匹配对应的工作流
+- 为角色设计选项添加了"角色"关键词识别，提高匹配的灵活性
+- 统一了所有工作流选项的识别方式，保持一致性和可预测性
+
+### 3. 增强工作流集成度
+
+- 确保`handleGenreWorkflow`和`handleWritingTechniqueWorkflow`完全集成到框架完善工具的选项处理中
+- 验证这些工作流在通过选项触发时能够正确执行并返回结果
+- 与框架标准部分顺序保持一致，使选项列表顺序与`standardOrder`数组一致
+
+这些更新确保了小说框架完善工具的所有功能模块都能在用户界面上完整呈现并一致运行，特别是新添加的小说题材和写作手法模块现在已完全集成到框架选项中，用户可以轻松地从界面选择和完善这些部分。
+
+## 2023-11-19 修复工作流返回值问题和优化工作流顺序
+
+### 修复工作流返回值问题
+1. 在所有工作流模块（chapter-outline.ts, character.ts, market.ts, plot.ts, style.ts, theme.ts, world.ts等）中添加了`success`变量跟踪操作是否成功
+2. 修复了可能导致TypeScript编译错误的返回值问题，确保所有代码分支都有明确的返回值
+3. 优化了错误处理逻辑，在操作失败时正确返回失败状态
+4. 调整了返回值表达式为`return success || continueInCurrentSection`，确保函数可以基于操作成功状态或用户继续完善意愿返回正确的值
+5. 保持了与写作手法和小说题材工作流模块一致的错误处理和返回值逻辑
+6. 特别处理了chapter-outline.ts中的花括号匹配问题，确保代码结构完整正确
+
+### 进一步调试与测试
+1. 对所有工作流文件进行了代码检查，确保语法正确
+2. 对所有返回分支进行了路径分析，确保无论执行哪条路径都会返回适当的值
+3. 验证了特殊情况（如AI助手生成失败）下的错误处理机制
+4. 确保了askFollowupQuestionTool内部回调函数的正确行为
+
+### 优化效果
+1. 消除了TypeScript "not all code paths return a value"类型的编译错误
+2. 提高了代码健壮性，确保即使AI生成失败也能正确处理
+3. 统一了所有工作流模块的返回值处理方式，使代码更加一致和可维护
+4. 完善了工作流跳转逻辑，使用户可以顺畅地在不同部分之间切换
+
+### 优化工作流顺序排列
+
+- 重新排序`standardOrder`数组中的元素，按重要程度排序
+- 将小说题材(genre)提升为第一位，创作计划(plan)置于最后一位
+- 调整了工作流的顺序为: 题材 -> 角色 -> 情节 -> 世界观 -> 主题 -> 章节 -> 风格 -> 写作手法 -> 市场 -> 技术 -> 情感 -> 反思 -> 计划
+- 更新了`areaNames`映射中的顺序，确保与新的标准顺序一致
+
+### 3. 同步更新相关组件
+
+- 修改了`createFrameworkFile`函数中的选项顺序，与新的工作流顺序保持一致
+- 更新了导入语句的顺序，使其与新的工作流顺序一致
+- 调整了`workflowMap`对象中的属性顺序，便于维护和理解
+- 确保所有引用工作流顺序的地方都同步更新，保持系统一致性
+
+这些更新确保了小说框架完善工具的所有功能模块都能在用户界面上完整呈现并一致运行，特别是新添加的小说题材和写作手法模块现在已完全集成到框架选项中，用户可以轻松地从界面选择和完善这些部分。
+
+## 2023-11-20 修复chapter-outline.ts中的回调函数返回值问题
+
+1. 对chapter-outline.ts文件中的异步回调函数进行了全面检查和修复
+2. 在所有回调函数末尾添加了`return true`语句，确保每个回调函数都有明确的返回值
+3. 特别处理了嵌套回调函数，确保内层回调函数也有适当的返回值
+4. 解决了TypeScript编译器报告的"并非所有代码路径都返回值"(TS-7030)错误
+5. 保持了代码功能不变的情况下，提高了代码的类型安全性和一致性
+6. 这些修改遵循了之前对其他工作流文件进行的类似修复，保持了代码库的一致性
+7. 通过确保所有异步函数在所有执行路径上都有返回值，提高了代码的健壮性
+
+### 优化效果
+1. 消除了TypeScript编译错误，使项目能够顺利通过类型检查
+2. 提高了代码可读性和可维护性，使开发者更容易理解回调函数的行为
+3. 避免了可能由于缺少返回值而导致的运行时异常
+4. 与其他工作流文件保持了一致的编码风格和错误处理方式 
+我已修复了两个package.json文件中的报错问题。这两个错误是因为包名称（name字段）不符合npm包命名规范引起的。
+具体修改如下：
+在根目录的package.json文件中：
+将 "name": "Roo-AINovel" 修改为 "name": "roo-ainovel"
+在src/package.json文件中：
+将 "name": "Roo-AINovel" 修改为 "name": "roo-ainovel"
+
+## 2023-11-21 修复TypeScript重复导出问题
+
+### 问题描述
+在`novelFrameworkUpdateTool.ts`文件中出现了重复导出(duplicate export)错误，具体表现为：
+1. 文件开头使用`export const novelFrameworkUpdateTool = {...}`导出了工具对象
+2. 文件结尾又使用`export { novelFrameworkUpdateTool }`重复导出了同一对象
+3. TypeScript编译器报告了三个相关错误：
+   - "无法重新声明导出的变量"novelFrameworkUpdateTool""
+   - "无法重新声明导出的变量"novelFrameworkUpdateTool""
+   - "导出声明与"novelFrameworkUpdateTool"的导出声明冲突"
+
+### 解决方案
+1. 删除文件末尾的重复导出语句`export { novelFrameworkUpdateTool }`
+2. 创建专门的入口文件`src/core/tools/novel-framework-update/index.ts`，从主文件导入并再导出工具
+3. 保持工具实现与导出入口的分离，符合项目的模块化结构
+
+### 经验总结
+1. **避免重复导出**：在同一文件中不应该多次导出同一个变量或对象，这会导致TypeScript编译错误
+2. **遵循模块化结构**：
+   - 工具实现应放在独立文件中（如`novelFrameworkUpdateTool.ts`）
+   - 导出入口应通过单独的索引文件（如`index.ts`）进行管理
+3. **错误信息解读**：
+   - 错误码2323表示变量重复声明
+   - 错误码2484表示导出声明冲突
+   - 这类错误通常意味着同一标识符在同一作用域被多次声明或导出
+4. **重构建议**：
+   - 当需要在多处使用同一导出对象时，应在一处定义并导出，然后在其他地方导入后再导出
+   - 使用命名导出而非默认导出可以提高代码的可读性和可维护性
+   - 在大型项目中，应建立清晰的模块导入/导出结构，避免循环依赖
+
+通过这次修复，不仅解决了当前的编译错误，也使项目的模块结构更加清晰和一致，便于后续维护和扩展。
+
+## 2023-11-22 小说框架工具优化
+
+### 1. 修复小说框架生成方式
+
+- 修改了`src/core/tools/novel-framework-refine/index.ts`中的`createFrameworkFile`函数，使生成的框架内容保存到文件而不是直接在对话框中显示
+- 添加了自动打开文件的功能，使用户可以立即查看和编辑生成的框架文件
+- 调整了用户选项，移除了"查看框架内容"选项，因为文件已经自动打开
+- 添加了"将此框架设置为全局规则文件"选项，让用户可以直接将生成的框架设置为规则文件
+- 优化了错误处理，在创建文件失败时提供更明确的错误信息
+
+### 2. 优化"设为框架"按钮
+
+- 修改了`webview-ui/src/components/chat/ChatTextArea.tsx`中的框架激活按钮，使其与其他操作按钮保持一致的样式
+- 将原来的条件渲染改为始终渲染但根据条件禁用，确保按钮在页面加载时就存在
+- 添加了`frameworkButtonVisible`状态，通过`useEffect`监听输入和文件变化来动态更新按钮状态
+- 使用红色背景使"设为框架"按钮更加醒目，方便用户快速找到
+- 使用`BookOpen`图标替换原来的文本按钮，使界面更加简洁统一
+
+### 3. 增强IconButton组件
+
+- 修改了`webview-ui/src/components/chat/IconButton.tsx`组件，添加对`icon`属性的支持
+- 将`iconClass`属性改为可选，允许通过`icon`属性传入React元素作为图标
+- 增加了条件渲染逻辑，优先显示自定义图标，没有自定义图标时才使用图标类名
+- 保持了对原有代码的兼容性，确保已使用该组件的地方不受影响
+
+这些改进解决了用户反馈的两个问题：小说框架生成后直接显示在对话框而不是保存为文件的问题，以及"设为框架"按钮加载延迟和样式不一致的问题。通过这些优化，提升了用户体验的连贯性和工具的易用性。
+
+## 2025-06-09 修复框架服务创建文件后不询问用户的问题
+
+### 问题描述
+
+在测试novel-framework-refine工具改造为服务后发现，当创建新的框架文件时，服务没有询问用户是否继续完善内容，而是直接结束流程。这导致用户体验不连贯，无法直接进入框架完善流程。
+
+### 修改内容
+
+1. 修改`src/services/framework/FrameworkService.ts`文件：
+   - 在`processFrameworkRefine`方法中，创建框架文件后添加询问用户是否继续完善的逻辑
+   - 创建基本状态并执行`show_options`步骤，而不是直接返回
+   - 通过事件系统发送`ask_continue`事件，通知工具适配器需要询问用户
+
+2. 修改`src/core/tools/novelFrameworkRefineTool.ts`文件：
+   - 添加对`ask_continue`事件的处理逻辑
+   - 使用`askFollowupQuestionTool`工具询问用户是否继续完善框架
+   - 提供"是:继续完善框架内容;否:结束框架完善"选项给用户
+
+### 实现方式
+
+1. 在框架服务中添加事件发送：
+   ```typescript
+   this._onProgressUpdate.fire({
+       currentStep: "ask_continue",
+       message: "是否继续完善框架内容？"
+   })
+   ```
+
+2. 在工具适配器中添加事件监听和处理：
+   ```typescript
+   if (event.currentStep === "ask_continue" && event.message) {
+       needAskUser = true
+       askMessage = event.message
+   }
+   ```
+
+3. 在服务处理完成后，工具适配器调用`askFollowupQuestionTool`询问用户
+
+### 效果
+
+修复后，当用户创建新的框架文件时，系统会自动询问是否继续完善框架内容，提供更加连贯的用户体验。用户可以选择继续完善特定部分，或者结束框架完善过程。
+
+## 2025-06-10 修复框架服务工作流执行后直接结束的问题
+
+### 问题描述
+
+在测试框架服务时发现，执行完一个工作流后，系统直接跳转到attempt-completion确认任务完成，而不是继续询问用户是否要完善其他部分。这导致用户体验不连贯，无法在一次工具调用中完成多个部分的框架完善。
+
+### 修改内容
+
+1. 修改`src/services/framework/workflow-manager.ts`文件：
+   - 修改`handleExecuteWorkflowStep`方法，确保执行完工作流后继续询问用户而不是直接结束
+   - 修改`handleNextStepOptionsStep`方法，直接显示选项而不是询问用户是否继续
+   - 修改`handleProcessChoiceStep`方法，添加对"结束框架完善"选项的处理
+
+2. 具体改动：
+   - 工作流执行失败或出错时不再直接结束，而是继续进入下一步选项
+   - 下一步选项直接显示具体可选操作，包括完善缺失部分、深入完善已有部分或结束框架完善
+   - 增加对用户输入"结束"、"完成"等关键词的识别，允许用户主动结束框架完善流程
+
+### 实现方式
+
+1. 修改工作流执行结果处理：
+   ```typescript
+   // 无论成功与否，都进入下一步选项步骤，而不是直接完成
+   return {
+       nextStep: "next_step",
+       message: `${selectedOption.title} 完善成功！`
+   }
+   ```
+
+2. 改进选项显示逻辑：
+   ```typescript
+   // 构建选项消息
+   let optionsMessage = "**框架已更新，您可以选择：**\n\n"
+   
+   if (missingSections.length > 0) {
+       optionsMessage += "1. 继续完善缺失的基本部分：" + missingSections.join(", ") + "\n"
+       optionsMessage += "2. 深入完善已有部分\n"
+       optionsMessage += "3. 结束框架完善\n"
+   } else {
+       optionsMessage += "1. 继续深入完善已有部分\n"
+       optionsMessage += "2. 结束框架完善\n"
+   }
+   ```
+
+3. 添加结束选项处理：
+   ```typescript
+   // 检查用户是否选择结束框架完善
+   if (userChoice.includes("结束") || userChoice.includes("完成") || 
+       userChoice.toLowerCase().includes("end") || userChoice.toLowerCase().includes("finish")) {
+       return {
+           nextStep: "complete",
+           message: "框架完善已结束。",
+           completed: true
+       }
+   }
+   ```
+
+### 效果
+
+修复后，当用户完成一个部分的框架完善后，系统会自动显示下一步可选操作，而不是直接结束任务。用户可以选择继续完善其他部分，或者主动选择结束框架完善流程。这提供了更加连贯和灵活的用户体验，允许用户在一次工具调用中完成多个部分的框架完善。
