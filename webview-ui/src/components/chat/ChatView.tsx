@@ -702,8 +702,14 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 
 	useEvent("message", handleMessage)
 
-	// NOTE: the VSCode window needs to be focused for this to work.
-	useMount(() => textAreaRef.current?.focus())
+	// 优化组件挂载时的初始化速度
+	useMount(() => {
+		// 立即请求刷新标题栏，确保UI元素及时显示
+		vscode.postMessage({ type: "refreshTitleBar" })
+		
+		// 保留原来的文本区域聚焦功能
+		textAreaRef.current?.focus()
+	})
 
 	useEffect(() => {
 		const timer = setTimeout(() => {

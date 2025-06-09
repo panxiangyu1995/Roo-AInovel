@@ -75,8 +75,6 @@ const App = () => {
 				const newTab = tabsByMessageAction[message.action]
 				const section = message.values?.section as string | undefined
 
-				console.log(`Received message: ${message.type} - ${message.action}`, message);
-
 				if (newTab) {
 					switchTab(newTab)
 					setCurrentSection(section)
@@ -119,7 +117,7 @@ const App = () => {
 		setTimeout(() => {
 			console.log("Requesting title bar buttons refresh");
 			vscode.postMessage({ type: "refreshTitleBar" })
-		}, 1500);
+		}, 500);
 	}, [])
 
 	if (!didHydrateState) {

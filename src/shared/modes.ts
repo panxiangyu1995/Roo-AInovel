@@ -213,15 +213,19 @@ export const defaultModeSlug = modes[0].slug
 
 // Helper functions
 export function getModeBySlug(slug: string, customModes?: ModeConfig[]): ModeConfig | undefined {
-	return findModeBySlug(slug, customModes) || findModeBySlug(slug, modes)
+	// Check custom modes first
+	const customMode = customModes?.find((mode) => mode.slug === slug)
+	if (customMode) {
+		return customMode
+	}
+	// Then check built-in modes
+	return modes.find((mode) => mode.slug === slug)
 }
 
-// Get mode config by slug, with fallback to default mode
 export function getModeConfig(slug: string, customModes?: ModeConfig[]): ModeConfig {
 	const mode = getModeBySlug(slug, customModes)
 	if (!mode) {
-		console.warn(`Mode "${slug}" not found, falling back to default mode "${defaultModeSlug}"`)
-		return getModeBySlug(defaultModeSlug, customModes) || modes[0]
+		throw new Error(`No mode found for slug: ${slug}`)
 	}
 	return mode
 }

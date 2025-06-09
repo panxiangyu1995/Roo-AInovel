@@ -1439,9 +1439,9 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 		}
 		case "refreshTitleBar":
 			provider.log("Refreshing title bar buttons")
-			// 尝试刷新标题栏按钮
+			// 立即刷新标题栏按钮，优化刷新速度
 			try {
-				await vscode.commands.executeCommand("workbench.action.focusActiveEditorGroup");
+				// 直接执行刷新命令，不需要先聚焦编辑器组
 				await vscode.commands.executeCommand("workbench.action.refreshEditorTitle");
 			} catch (err) {
 				provider.log(`Failed to refresh title bar: ${err}`);
