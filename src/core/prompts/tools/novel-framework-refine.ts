@@ -16,7 +16,7 @@ Parameters:
 
 This tool analyzes the content of a novel framework file and provides options for improving or completing different aspects of the framework. It identifies areas that could be enhanced, such as character details, plot structure, worldbuilding elements, etc., and presents these as options for the user to choose from.
 
-When creating a new framework file, it automatically applies a template with all 13 standard sections including: Novel subject matter, character design, plot outline, world setting, theme elements, chapter planning, narrative style, writing techniques, market positioning, system setting, emotional design, self-reflection, and creative plan.
+When creating a new framework file, it automatically applies a template with all 14 standard sections including: Novel subject matter, character design, plot outline, world setting, theme elements, chapter planning, narrative style, writing techniques, market positioning, system setting, emotional design, self-reflection,  creative plan and other precautions.
 
 The tool uses the ask_followup_question tool to present improvement options to the user and capture their selection.
 

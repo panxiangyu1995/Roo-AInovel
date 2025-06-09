@@ -115,9 +115,37 @@ export class FrameworkConfigManager {
     
     /**
      * 服务是否启用
+     * 只有在小说框架模式下才启用此服务
      */
     public get isEnabled(): boolean {
-        return this._enabled
+        // 检查当前模式是否为小说框架模式
+        const currentMode = this.getCurrentMode()
+        // 只要在小说框架模式下就自动启用服务
+        return currentMode === "planner"
+    }
+    
+    /**
+     * 获取当前模式
+     * @returns 当前模式的slug
+     */
+    private getCurrentMode(): string {
+        try {
+            // 从全局状态获取当前模式
+            const globalState = vscode.workspace.getConfiguration("roo-ainovel").get("globalState") as any
+            if (globalState && globalState.mode) {
+                return globalState.mode
+            }
+            
+            // 从扩展状态获取当前模式
+            const extensionState = vscode.workspace.getConfiguration("roo-ainovel").get("extensionState") as any
+            if (extensionState && extensionState.mode) {
+                return extensionState.mode
+            }
+        } catch (error) {
+            console.error("获取当前模式失败:", error)
+        }
+        
+        return ""
     }
     
     /**

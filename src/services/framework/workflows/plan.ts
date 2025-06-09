@@ -1,4 +1,4 @@
-import { PlanConfig, WorkflowParams } from "../types"
+import { PlanConfig, WorkflowParams } from "../novel-framework-refine/types"
 import { determinePlanSectionPosition } from "../utils/diff-utils"
 import { generatePlanSection } from "../utils/generators"
 import { prepareAppendDiff, prepareReplaceDiff } from "../utils/common"

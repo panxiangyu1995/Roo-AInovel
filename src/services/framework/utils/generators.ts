@@ -1,4 +1,4 @@
-import { ChapterConfig, EmotionConfig, MarketConfig, PlanConfig, ReflectionConfig, StyleConfig, SystemConfig, ThemeConfig } from "../types"
+import { ChapterConfig, EmotionConfig, GuidelinesConfig, MarketConfig, PlanConfig, ReflectionConfig, StyleConfig, SystemConfig, ThemeConfig } from "../novel-framework-refine/types"
 
 /**
  * 剧情部分配置类型
@@ -259,6 +259,34 @@ export function generateReflectionSection(config: ReflectionConfig): string {
     }
     
     content += '### 期望效果\n\n*此处可描述创作预期达到的效果*\n\n'
+    
+    return content
+}
+
+/**
+ * 生成注意事项内容
+ */
+export function generateGuidelinesSection(config: GuidelinesConfig): string {
+    const { taboos = [], styles = [], platformRules = [] } = config
+    let content = '## 注意事项\n\n'
+    
+    if (taboos.length > 0) {
+        content += '### 创作禁忌\n\n' + taboos.map((taboo: string) => `- ${taboo}`).join('\n') + '\n\n'
+    } else {
+        content += '### 创作禁忌\n\n*此处添加需要避免的情节、人设、设定等*\n\n'
+    }
+    
+    if (styles.length > 0) {
+        content += '### 风格规范\n\n' + styles.map((style: string) => `- ${style}`).join('\n') + '\n\n'
+    } else {
+        content += '### 风格规范\n\n*此处添加需要保持的写作风格、语言特点等*\n\n'
+    }
+    
+    if (platformRules.length > 0) {
+        content += '### 平台内容规范\n\n' + platformRules.map((rule: string) => `- ${rule}`).join('\n') + '\n\n'
+    } else {
+        content += '### 平台内容规范\n\n*此处添加发布平台的内容规范要求*\n\n'
+    }
     
     return content
 }

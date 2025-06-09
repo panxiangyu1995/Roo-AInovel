@@ -1,4 +1,4 @@
-import { Task } from "../../task/Task"
+import { Task } from "../../../core/task/Task"
 import { AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../../../shared/tools"
 
 /**
@@ -102,6 +102,15 @@ export interface ReflectionConfig {
     intentions?: string[]
     styles?: string[]
     innovations?: string[]
+}
+
+/**
+ * 注意事项配置类型
+ */
+export interface GuidelinesConfig {
+    taboos?: string[]
+    styles?: string[]
+    platformRules?: string[]
 }
 
 /**

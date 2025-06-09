@@ -1,4 +1,4 @@
-import { SectionPosition } from "../types"
+import { SectionPosition } from "../novel-framework-refine/types"
 
 /**
  * 确定章节大纲部分的位置

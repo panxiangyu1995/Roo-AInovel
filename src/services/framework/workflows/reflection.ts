@@ -1,20 +1,20 @@
 import * as path from "path"
 import * as fs from "fs/promises"
-import { TechConfig, WorkflowParams } from "../types"
-import { determineSystemSectionPosition } from "../utils/diff-utils"
-import { generateSystemSection } from "../utils/generators"
+import { ReflectionConfig, WorkflowParams } from "../novel-framework-refine/types"
+import { determineReflectionSectionPosition } from "../utils/diff-utils"
+import { generateReflectionSection } from "../utils/generators"
 import { prepareAppendDiff, prepareReplaceDiff } from "../utils/common"
 import { findSectionPosition } from "../utils/position"
 import { safeExecute } from "../utils/error-handler"
 
 /**
- * 处理系统设定工作流
+ * 处理自我反思工作流
  */
-export async function handleSystemWorkflow(params: any): Promise<boolean> {
+export async function handleReflectionWorkflow(params: any): Promise<boolean> {
     const { cline, frameworkPath, frameworkContent, askApproval, handleError, pushToolResult, removeClosingTag } = params
     
     try {
-        pushToolResult("正在分析系统设定情况...")
+        pushToolResult("正在分析自我反思情况...")
         
         // 获取工作区根路径
         const rootPath = cline.cwd || process.cwd()
@@ -22,29 +22,29 @@ export async function handleSystemWorkflow(params: any): Promise<boolean> {
         // 构建完整文件路径
         const fullPath = path.isAbsolute(frameworkPath) ? frameworkPath : path.join(rootPath, frameworkPath)
         
-        // 检查系统设定部分是否存在
-        const systemSectionPosition = findSectionPosition(frameworkContent, ["## 系统设定", "## 特殊系统", "## 世界规则", "## 修仙系统", "## 武功系统"])
+        // 检查自我反思部分是否存在
+        const reflectionSectionPosition = findSectionPosition(frameworkContent, ["## 自我反思", "## 创作反思", "## 写作挑战"])
         
-        // 询问用户希望如何改进系统设定
-        const systemQuestionBlock = {
+        // 询问用户希望如何改进自我反思
+        const reflectionQuestionBlock = {
             type: "tool_use" as const,
             name: "ask_followup_question" as const,
             params: {
-                question: systemSectionPosition.found ? 
-                    "您希望如何改进系统设定？\n\n" +
-                    "1. 完善核心系统规则\n" +
-                    "2. 设计系统等级与进阶\n" +
-                    "3. 增加系统独特能力\n" +
-                    "4. 优化系统平衡性\n" +
-                    "5. 设计系统成长路径\n" +
-                    "6. 添加系统特殊限制\n" : 
-                    "您的框架中尚未包含系统设定部分。您希望添加哪种类型的系统设定？\n\n" +
-                    "1. 修仙/功法系统\n" +
-                    "2. 武侠/武功系统\n" +
-                    "3. 异能/超能力系统\n" +
-                    "4. 游戏/属性系统\n" +
-                    "5. 魔法/奇术系统\n" +
-                    "6. 科技/机械系统\n"
+                question: reflectionSectionPosition.found ? 
+                    "您希望如何改进自我反思？\n\n" +
+                    "1. 深化创作意图分析\n" +
+                    "2. 完善作品独特价值\n" +
+                    "3. 探讨创作挑战与应对\n" +
+                    "4. 增加读者反馈预期\n" +
+                    "5. 分析个人风格特点\n" +
+                    "6. 制定创作提升计划\n" : 
+                    "您的框架中尚未包含自我反思部分。您希望添加哪种类型的自我反思？\n\n" +
+                    "1. 创作意图与目标\n" +
+                    "2. 作品价值与意义\n" +
+                    "3. 创作挑战与对策\n" +
+                    "4. 个人风格与特色\n" +
+                    "5. 读者体验设计\n" +
+                    "6. 成长目标与计划\n"
             },
             partial: false,
         }
@@ -56,7 +56,7 @@ export async function handleSystemWorkflow(params: any): Promise<boolean> {
         await safeExecute(async () => {
             await cline.toolManager.askFollowupQuestionTool(
                 cline,
-                systemQuestionBlock,
+                reflectionQuestionBlock,
             askApproval,
             handleError,
             async (result: unknown) => {
@@ -64,123 +64,113 @@ export async function handleSystemWorkflow(params: any): Promise<boolean> {
                         selectedOption = result.trim()
                         
                         let promptContent = ""
-                        let systemType = ""
                         
                         // 根据用户选择设置提示内容
-                        if (systemSectionPosition.found) {
-                            // 已有系统设定，根据选择完善
-                            if (selectedOption.includes("1") || selectedOption.toLowerCase().includes("核心")) {
-                                promptContent = "请完善系统的核心规则，包括基本原理、运作方式和主要特点。"
-                            } else if (selectedOption.includes("2") || selectedOption.toLowerCase().includes("等级")) {
-                                promptContent = "请设计系统的等级与进阶路径，包括各等级的特点和晋升条件。"
-                            } else if (selectedOption.includes("3") || selectedOption.toLowerCase().includes("能力")) {
-                                promptContent = "请增加系统的独特能力，包括特殊技能、效果和应用场景。"
-                            } else if (selectedOption.includes("4") || selectedOption.toLowerCase().includes("平衡")) {
-                                promptContent = "请优化系统的平衡性，包括能力限制、消耗机制和风险设计。"
-                            } else if (selectedOption.includes("5") || selectedOption.toLowerCase().includes("成长")) {
-                                promptContent = "请设计系统的成长路径，包括提升方式、瓶颈突破和关键节点。"
-                            } else if (selectedOption.includes("6") || selectedOption.toLowerCase().includes("限制")) {
-                                promptContent = "请添加系统的特殊限制，包括使用条件、副作用和禁忌事项。"
+                        if (reflectionSectionPosition.found) {
+                            // 已有自我反思，根据选择完善
+                            if (selectedOption.includes("1") || selectedOption.toLowerCase().includes("意图")) {
+                                promptContent = "请深化创作意图分析，明确作品要表达的核心思想和创作初衷。"
+                            } else if (selectedOption.includes("2") || selectedOption.toLowerCase().includes("价值")) {
+                                promptContent = "请完善作品独特价值，分析作品在文学性、思想性和娱乐性方面的贡献。"
+                            } else if (selectedOption.includes("3") || selectedOption.toLowerCase().includes("挑战")) {
+                                promptContent = "请探讨创作过程中可能面临的挑战，以及相应的应对策略。"
+                            } else if (selectedOption.includes("4") || selectedOption.toLowerCase().includes("读者")) {
+                                promptContent = "请增加对读者反馈的预期，分析可能的读者反应和评价。"
+                            } else if (selectedOption.includes("5") || selectedOption.toLowerCase().includes("风格")) {
+                                promptContent = "请分析个人写作风格特点，包括语言、结构和叙事方面的特色。"
+                            } else if (selectedOption.includes("6") || selectedOption.toLowerCase().includes("计划")) {
+                                promptContent = "请制定创作提升计划，规划如何在写作过程中不断提高和突破。"
                             } else {
-                                promptContent = "请全面改进系统设定，使其更加完整、合理且有特色。"
+                                promptContent = "请全面改进自我反思，使其更有深度和实用性。"
                             }
                         } else {
-                            // 尚未有系统设定，根据选择创建
-                            if (selectedOption.includes("1") || selectedOption.toLowerCase().includes("修仙")) {
-                                promptContent = "请创建修仙/功法系统，包括修炼境界、功法特点和灵气运用。"
-                                systemType = "修仙/功法系统"
-                            } else if (selectedOption.includes("2") || selectedOption.toLowerCase().includes("武侠")) {
-                                promptContent = "请创建武侠/武功系统，包括武学流派、招式特点和内功心法。"
-                                systemType = "武侠/武功系统"
-                            } else if (selectedOption.includes("3") || selectedOption.toLowerCase().includes("异能")) {
-                                promptContent = "请创建异能/超能力系统，包括能力分类、觉醒条件和能力限制。"
-                                systemType = "异能/超能力系统"
-                            } else if (selectedOption.includes("4") || selectedOption.toLowerCase().includes("游戏")) {
-                                promptContent = "请创建游戏/属性系统，包括数值设计、技能树和成长机制。"
-                                systemType = "游戏/属性系统"
-                            } else if (selectedOption.includes("5") || selectedOption.toLowerCase().includes("魔法")) {
-                                promptContent = "请创建魔法/奇术系统，包括魔法分类、施法条件和魔力来源。"
-                                systemType = "魔法/奇术系统"
-                            } else if (selectedOption.includes("6") || selectedOption.toLowerCase().includes("科技")) {
-                                promptContent = "请创建科技/机械系统，包括技术原理、装备设计和能源机制。"
-                                systemType = "科技/机械系统"
+                            // 尚未有自我反思，根据选择创建
+                            if (selectedOption.includes("1") || selectedOption.toLowerCase().includes("目标")) {
+                                promptContent = "请创建关于创作意图与目标的自我反思，明确你希望通过这部作品达成什么。"
+                            } else if (selectedOption.includes("2") || selectedOption.toLowerCase().includes("意义")) {
+                                promptContent = "请创建关于作品价值与意义的自我反思，分析作品可能的社会和文学价值。"
+                            } else if (selectedOption.includes("3") || selectedOption.toLowerCase().includes("对策")) {
+                                promptContent = "请创建关于创作挑战与对策的自我反思，预见写作中的困难并制定应对计划。"
+                            } else if (selectedOption.includes("4") || selectedOption.toLowerCase().includes("特色")) {
+                                promptContent = "请创建关于个人风格与特色的自我反思，分析你的写作风格和叙事特点。"
+                            } else if (selectedOption.includes("5") || selectedOption.toLowerCase().includes("体验")) {
+                                promptContent = "请创建关于读者体验设计的自我反思，思考如何提供最佳的阅读体验。"
+                            } else if (selectedOption.includes("6") || selectedOption.toLowerCase().includes("目标")) {
+                                promptContent = "请创建关于成长目标与计划的自我反思，规划如何通过这部作品提升写作能力。"
                             } else {
-                                promptContent = "请创建完整的系统设定，包括基本规则、等级划分和特殊能力。"
-                                systemType = "通用系统"
+                                promptContent = "请创建完整的自我反思，包括创作意图、作品价值和个人发展。"
                             }
                         }
                         
                         // 准备系统提示
-                        const systemPrompt = `你是一位专业的小说系统设定专家。${
-                            systemSectionPosition.found ? 
-                            "请根据现有系统设定进行改进和完善。" : 
-                            `请创建一个新的${systemType}设定部分。`
+                        const systemPrompt = `你是一位专业的小说创作顾问。${
+                            reflectionSectionPosition.found ? 
+                            "请根据现有自我反思进行改进和完善。" : 
+                            "请创建一个新的自我反思部分。"
                         }
                         
                         ${promptContent}
                         
-                        请确保系统设定：
-                        1. 规则清晰且内部一致
-                        2. 有明确的等级或进阶路径
-                        3. 具有独特性和创新点
-                        4. 与故事世界观和主题协调
-                        5. 平衡性良好，避免过于强大
-                        6. 有足够的发展空间和深度
+                        请确保自我反思：
+                        1. 创作意图和目标明确
+                        2. 对作品价值有深入分析
+                        3. 对创作挑战有清醒认识
+                        4. 对个人风格有准确把握
+                        5. 有具体的成长和提升计划
                         
-                        ${systemSectionPosition.found ? "以下是现有的系统设定内容：" : "请创建以下格式的系统设定："}
+                        ${reflectionSectionPosition.found ? "以下是现有的自我反思内容：" : "请创建以下格式的自我反思："}
                         
-                        ## 系统设定
+                        ## 自我反思
                         
-                        ### 基本规则
-                        *系统的基本原理和运作方式*
+                        ### 创作意图
+                        *创作意图的描述*
                         
-                        ### 等级划分
-                        *系统的等级结构和晋升条件*
+                        ### 作品价值
+                        *作品价值的描述*
                         
-                        ### 特殊能力
-                        *系统提供的独特能力和效果*
+                        ### 创作挑战
+                        *创作挑战的描述*
                         
-                        ### 限制条件
-                        *系统的使用限制和代价*
+                        ### 个人风格
+                        *个人风格的描述*
                         
-                        ### 获取方式
-                        *如何获得和提升这一系统*
+                        ### 成长计划
+                        *成长计划的描述*
                         
-                        请直接给出完整的Markdown格式系统设定内容，以"## 系统设定"或相应标题开头。`;
+                        请直接给出完整的Markdown格式自我反思内容，以"## 自我反思"开头。`;
                         
                         // 当前内容
                         let currentContent = ""
-                        if (systemSectionPosition.found) {
+                        if (reflectionSectionPosition.found) {
                             const contentLines = frameworkContent.split("\n")
-                            currentContent = contentLines.slice(systemSectionPosition.startLine, systemSectionPosition.endLine + 1).join("\n")
+                            currentContent = contentLines.slice(reflectionSectionPosition.startLine, reflectionSectionPosition.endLine + 1).join("\n")
                         }
                         
-                        // 请求AI助手生成系统设定
-                        const response = await cline.ask("system_design", `${systemPrompt}\n\n${systemSectionPosition.found ? currentContent : ""}`, false)
+                        // 请求AI助手生成自我反思
+                        const response = await cline.ask("reflection_design", `${systemPrompt}\n\n${reflectionSectionPosition.found ? currentContent : ""}`, false)
                         
                         if (!response.text) {
-                            pushToolResult("未能生成有效的系统设定内容。")
+                            pushToolResult("未能生成有效的自我反思内容。")
                             success = false
                             return
                         }
                         
-                        // 提取系统设定内容
+                        // 提取自我反思内容
                         let newContent = response.text
                         
-                        // 确保以适当的标题开头
-                        const titleRegex = /## (系统设定|特殊系统|世界规则|修仙系统|武功系统)/i
-                        if (!titleRegex.test(newContent)) {
-                            newContent = "## 系统设定\n\n" + newContent
+                        // 确保以"## 自我反思"开头
+                        if (!newContent.includes("## 自我反思") && !newContent.includes("## 创作反思") && !newContent.includes("## 写作挑战")) {
+                            newContent = "## 自我反思\n\n" + newContent
                         }
                         
                         // 更新框架文件
                         let updatedContent = ""
-                        if (systemSectionPosition.found) {
+                        if (reflectionSectionPosition.found) {
                             // 替换现有部分
                             updatedContent = prepareReplaceDiff(
                                 frameworkContent, 
-                                systemSectionPosition.startLine, 
-                                systemSectionPosition.endLine,
+                                reflectionSectionPosition.startLine, 
+                                reflectionSectionPosition.endLine,
                                 newContent
                             )
                         } else {
@@ -192,18 +182,18 @@ export async function handleSystemWorkflow(params: any): Promise<boolean> {
                         await fs.writeFile(fullPath, updatedContent, "utf8")
                         success = true
                         
-                        pushToolResult(`已${systemSectionPosition.found ? "更新" : "添加"}系统设定内容。`)
+                        pushToolResult(`已${reflectionSectionPosition.found ? "更新" : "添加"}自我反思内容。`)
                         
-                        // 询问是否继续完善系统设定
+                        // 询问是否继续完善自我反思
                         const continueQuestionBlock = {
             type: "tool_use" as const,
             name: "ask_followup_question" as const,
             params: {
                                 question: "您希望如何继续？\n\n" +
-                                    "1. 继续深入完善系统设定\n" +
-                                    "2. 添加更多系统细节\n" +
-                                    "3. 调整系统平衡性\n" +
-                                    "4. 设计系统成长路径\n" +
+                                    "1. 继续深入完善自我反思\n" +
+                                    "2. 添加更多反思细节\n" +
+                                    "3. 调整反思与创作的关联\n" +
+                                    "4. 增强反思的独特性\n" +
                                     "5. 跳到下一个部分\n" +
                                     "6. 结束框架完善，切换到文字生成模式开始写作\n"
             },
@@ -225,7 +215,7 @@ export async function handleSystemWorkflow(params: any): Promise<boolean> {
                                         continueInCurrentSection = true
                                     } else if (continueChoice.includes("3") || continueChoice.toLowerCase().includes("调整")) {
                                         continueInCurrentSection = true
-                                    } else if (continueChoice.includes("4") || continueChoice.toLowerCase().includes("设计")) {
+                                    } else if (continueChoice.includes("4") || continueChoice.toLowerCase().includes("增强")) {
                                         continueInCurrentSection = true
                                     } else if (continueChoice.includes("5") || continueChoice.toLowerCase().includes("跳到下一个")) {
                                         continueInCurrentSection = false
@@ -308,7 +298,7 @@ export async function handleSystemWorkflow(params: any): Promise<boolean> {
         return success || continueInCurrentSection
     } catch (error) {
         handleError(error)
-        pushToolResult(`处理系统设定时出错: ${error.message || "未知错误"}`)
+        pushToolResult(`处理自我反思时出错: ${error.message || "未知错误"}`)
         return false
     }
 } 

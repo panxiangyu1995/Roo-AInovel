@@ -8,20 +8,21 @@ import { FrameworkConfigManager } from "./config-manager"
 import { getWorkspacePath } from "../../utils/path"
 import { formatResponse } from "../../core/prompts/responses"
 import { fileExistsAtPath } from "../../utils/fs"
-import { handleGenreWorkflow } from "../../core/tools/novel-framework-refine/workflows/genre"
-import { handleCharacterWorkflow } from "../../core/tools/novel-framework-refine/workflows/character"
-import { handlePlotWorkflow } from "../../core/tools/novel-framework-refine/workflows/plot"
-import { handleWorldWorkflow } from "../../core/tools/novel-framework-refine/workflows/world"
-import { handleThemeWorkflow } from "../../core/tools/novel-framework-refine/workflows/theme"
-import { handleChapterOutlineWorkflow } from "../../core/tools/novel-framework-refine/workflows/chapter-outline"
-import { handleStyleWorkflow } from "../../core/tools/novel-framework-refine/workflows/style"
-import { handleWritingTechniqueWorkflow } from "../../core/tools/novel-framework-refine/workflows/writing-technique"
-import { handleMarketWorkflow } from "../../core/tools/novel-framework-refine/workflows/market"
-import { handleSystemWorkflow } from "../../core/tools/novel-framework-refine/workflows/tech"
-import { handleEmotionWorkflow } from "../../core/tools/novel-framework-refine/workflows/emotion"
-import { handleReflectionWorkflow } from "../../core/tools/novel-framework-refine/workflows/reflection"
-import { handlePlanWorkflow } from "../../core/tools/novel-framework-refine/workflows/plan"
-import { handleChunkDemoWorkflow } from "../../core/tools/novel-framework-refine/workflows/chunk-demo"
+import { handleGenreWorkflow } from "./workflows/genre"
+import { handleCharacterWorkflow } from "./workflows/character"
+import { handlePlotWorkflow } from "./workflows/plot"
+import { handleWorldWorkflow } from "./workflows/world"
+import { handleThemeWorkflow } from "./workflows/theme"
+import { handleChapterOutlineWorkflow } from "./workflows/chapter-outline"
+import { handleStyleWorkflow } from "./workflows/style"
+import { handleWritingTechniqueWorkflow } from "./workflows/writing-technique"
+import { handleMarketWorkflow } from "./workflows/market"
+import { handleSystemWorkflow } from "./workflows/tech"
+import { handleEmotionWorkflow } from "./workflows/emotion"
+import { handleReflectionWorkflow } from "./workflows/reflection"
+import { handlePlanWorkflow } from "./workflows/plan"
+import { handleChunkDemoWorkflow } from "./workflows/chunk-demo"
+import { handleGuidelinesWorkflow } from "./workflows/guidelines"
 import { generateBasicFramework } from "./utils/common"
 
 /**
@@ -118,6 +119,7 @@ export class FrameworkService implements IFrameworkService {
         this._workflowManager.registerWorkflow("reflection", handleReflectionWorkflow)
         this._workflowManager.registerWorkflow("plan", handlePlanWorkflow)
         this._workflowManager.registerWorkflow("chunk-demo", handleChunkDemoWorkflow)
+        this._workflowManager.registerWorkflow("guidelines", handleGuidelinesWorkflow)
     }
     
     /**
@@ -189,8 +191,94 @@ export class FrameworkService implements IFrameworkService {
                     removeClosingTag: () => ""
                 }
                 
-                // 直接执行显示选项步骤
-                await this.executeStep("show_options", stepParams)
+                // 通知用户框架已创建
+                await stepParams.pushToolResult(`已成功创建小说框架文件：${frameworkPath}`)
+                
+                // 使用askFollowupQuestion工具询问用户是否继续完善框架
+                const continueQuestionBlock = {
+                    type: "tool_use" as const,
+                    name: "ask_followup_question" as const,
+                    params: {
+                        question: "框架已创建，您希望如何继续？\n\n" +
+                            "1. 继续完善框架内容\n" +
+                            "2. 结束框架完善"
+                    },
+                    partial: false,
+                }
+                
+                let shouldContinue = false
+                
+                await cline.toolManager.askFollowupQuestionTool(
+                    cline,
+                    continueQuestionBlock,
+                    stepParams.askApproval,
+                    (context: string, error: Error) => stepParams.handleError(context, error),
+                    async (result: unknown) => {
+                        if (result && typeof result === "string") {
+                            const userChoice = result.trim()
+                            shouldContinue = userChoice.includes("1") || userChoice.toLowerCase().includes("继续")
+                        }
+                        return true
+                    },
+                    stepParams.removeClosingTag
+                )
+                
+                if (shouldContinue) {
+                    // 直接执行显示选项步骤
+                    await this.executeStep("show_options", stepParams)
+                } else {
+                    await stepParams.pushToolResult("您选择了结束框架完善。框架已保存。")
+                    
+                    // 询问是否切换到writer模式
+                    const switchQuestionBlock = {
+                        type: "tool_use" as const,
+                        name: "ask_followup_question" as const,
+                        params: {
+                            question: "是否要切换到文字生成模式开始写作？\n\n" +
+                                "1. 是，开始写作\n" +
+                                "2. 否，稍后再写"
+                        },
+                        partial: false,
+                    }
+                    
+                    await cline.toolManager.askFollowupQuestionTool(
+                        cline,
+                        switchQuestionBlock,
+                        stepParams.askApproval,
+                        (context: string, error: Error) => stepParams.handleError(context, error),
+                        async (result: unknown) => {
+                            if (result && typeof result === "string") {
+                                const switchChoice = result.trim()
+                                
+                                if (switchChoice.includes("1") || switchChoice.toLowerCase().includes("是")) {
+                                    // 使用switch_mode工具切换到writer模式
+                                    stepParams.pushToolResult("正在切换到文字生成模式...")
+                                    
+                                    try {
+                                        await cline.recursivelyMakeClineRequests([{
+                                            type: "tool_use",
+                                            name: "switch_mode",
+                                            tool: {
+                                                name: "switch_mode",
+                                                input: {
+                                                    mode_slug: "writer",
+                                                    reason: "开始基于框架进行小说创作"
+                                                }
+                                            }
+                                        }])
+                                        
+                                        stepParams.pushToolResult("已切换到文字生成模式。您现在可以开始根据框架创作小说内容了。")
+                                    } catch (error) {
+                                        stepParams.pushToolResult("模式切换失败，请手动切换到文字生成模式。错误: " + error)
+                                    }
+                                }
+                            }
+                            return true
+                        },
+                        stepParams.removeClosingTag
+                    )
+                }
+                
                 return
             }
             
@@ -199,17 +287,13 @@ export class FrameworkService implements IFrameworkService {
             
             // 创建或加载状态
             let state: FrameworkState
+            
             if (hasValidState) {
+                // 加载现有状态
                 state = (await this._stateManager.loadState())!
             } else {
+                // 创建新状态
                 state = this._stateManager.createState(frameworkPath)
-            }
-            
-            // 设置初始步骤
-            if (!hasValidState) {
-                state = this._stateManager.updateState({
-                    currentStep: "init"
-                })
             }
             
             // 创建步骤参数
@@ -218,42 +302,31 @@ export class FrameworkService implements IFrameworkService {
                 frameworkPath,
                 state,
                 askApproval: async (message: string) => {
-                    // 在实际应用中，这里应该调用askFollowupQuestionTool
-                    // 但是在服务中，我们将这个逻辑委托给工具适配器处理
+                    // 通过事件发送消息
                     this._onProgressUpdate.fire({
-                        currentStep: "ask_continue",
+                        currentStep: "ask_approval",
                         message
                     })
+                    
+                    // 这里应该等待用户响应，但由于架构限制，我们默认返回true
                     return true
                 },
                 handleError: async (context: string, error: Error) => {
                     console.error(`[FrameworkService] ${context}:`, error)
                 },
                 pushToolResult: (message: string) => {
-                    // 在实际应用中，这里应该将消息推送给用户
-                    // 但是在服务中，我们将这个逻辑委托给工具适配器处理
                     this._onProgressUpdate.fire({
-                        currentStep: state.currentStep,
+                        currentStep: "message",
                         message
                     })
                 },
                 removeClosingTag: () => ""
             }
             
-            // 执行工作流步骤
-            const result = await this.executeStep(state.currentStep, stepParams)
-            
-            // 更新状态
-            if (result.stateUpdates) {
-                this._stateManager.updateState(result.stateUpdates)
-            }
-            
-            // 如果工作流完成，清除状态
-            if (result.completed) {
-                await this._stateManager.clearState()
-            }
+            // 执行初始化步骤
+            await this.executeStep("init", stepParams)
         } catch (error) {
-            console.error("[FrameworkService] 执行小说框架完善服务时出错:", error)
+            console.error("[FrameworkService] 处理框架完善请求时出错:", error)
             throw error
         }
     }

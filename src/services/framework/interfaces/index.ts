@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { RefinementOption } from "../../../core/tools/novel-framework-refine/types"
+import { RefinementOption } from "../novel-framework-refine/types"
 
 /**
  * 框架服务状态类型

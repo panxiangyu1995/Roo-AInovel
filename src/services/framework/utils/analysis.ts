@@ -1,4 +1,4 @@
-import { RefinementOption } from "../types"
+import { RefinementOption } from "../novel-framework-refine/types"
 
 /**
  * 分析框架内容，确定可完善的方向
@@ -458,6 +458,34 @@ export function analyzeFramework(content: string): RefinementOption[] {
             });
         }
     }
+    
+    // 检查注意事项部分
+    if (!content.includes("## 注意事项") && !content.includes("## Guidelines") && !content.includes("## 注意事项与规范")) {
+        options.push({
+            id: "add_guidelines",
+            area: "guidelines",
+            title: "添加创作注意事项",
+            description: "记录创作过程中需要注意的要点、禁忌和规范",
+        });
+    } else if (content.includes("## 注意事项") || content.includes("## Guidelines") || content.includes("## 注意事项与规范")) {
+        if (!content.includes("创作禁忌") && !content.includes("避免事项")) {
+            options.push({
+                id: "writing_taboos",
+                area: "guidelines",
+                title: "明确创作禁忌",
+                description: "列出需要避免的情节、表达或内容",
+            });
+        }
+        
+        if (!content.includes("风格规范") && !content.includes("表达规范")) {
+            options.push({
+                id: "style_guidelines",
+                area: "guidelines",
+                title: "制定风格规范",
+                description: "确定创作中需要保持的风格一致性规则",
+            });
+        }
+    }
 
     // 如果没有找到特定区域的内容，添加通用选项
     if (options.length === 0) {
@@ -521,6 +549,12 @@ export function analyzeFramework(content: string): RefinementOption[] {
                 area: "reflection",
                 title: "添加自我反思",
                 description: "记录创作意图和个人风格特点",
+            },
+            {
+                id: "add_guidelines",
+                area: "guidelines",
+                title: "添加创作注意事项",
+                description: "记录创作过程中需要注意的要点和规范",
             }
         )
     }

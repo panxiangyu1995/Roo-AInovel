@@ -2,8 +2,9 @@ import * as path from "path"
 import * as fs from "fs/promises"
 import { FrameworkState, StepHandler, StepParams, StepResult, WorkflowHandler, WorkflowParams } from "./interfaces"
 import { FrameworkStateManager } from "./state-manager"
-import { analyzeFramework } from "../../core/tools/novel-framework-refine/utils/analysis"
-import { RefinementOption } from "../../core/tools/novel-framework-refine/types"
+import { analyzeFramework } from "./utils/analysis"
+import { RefinementOption } from "./novel-framework-refine/types"
+import { handleGuidelinesWorkflow } from "./workflows/guidelines"
 
 /**
  * 工作流管理器
@@ -219,7 +220,7 @@ export class WorkflowManager {
      * 处理显示选项步骤
      */
     private handleShowOptionsStep = async (params: StepParams): Promise<StepResult> => {
-        const { frameworkPath, pushToolResult } = params
+        const { cline, frameworkPath, pushToolResult, askApproval, handleError, removeClosingTag } = params
         
         // 获取工作区根路径
         const rootPath = params.cline.cwd || process.cwd()
@@ -243,21 +244,50 @@ export class WorkflowManager {
         const refinementOptions = analyzeFramework(frameworkContent)
         
         // 构建选项消息
-        let optionsMessage = "**框架分析完成，以下是可以完善的方向：**\n\n"
+        let optionsMessage = "框架分析完成，以下是可以完善的方向：\n\n"
         
         refinementOptions.forEach((option, index) => {
-            optionsMessage += `${index + 1}. **${option.title}**: ${option.description}\n`
+            optionsMessage += `${index + 1}. ${option.title}: ${option.description}\n`
         })
         
-        optionsMessage += "\n请选择要完善的方向（输入选项编号或描述）："
+        // 使用askFollowupQuestion工具询问用户
+        const questionBlock = {
+            type: "tool_use" as const,
+            name: "ask_followup_question" as const,
+            params: {
+                question: optionsMessage + "\n请选择要完善的方向（输入选项编号或描述）："
+            },
+            partial: false,
+        }
         
-        // 显示选项
-        pushToolResult(optionsMessage)
+        let userChoice = ""
+        
+        await cline.toolManager.askFollowupQuestionTool(
+            cline,
+            questionBlock,
+            askApproval,
+            handleError,
+            async (result: unknown) => {
+                if (result && typeof result === "string") {
+                    userChoice = result.trim()
+                }
+                return true
+            },
+            removeClosingTag
+        )
+        
+        // 如果用户没有做出选择，提示并返回到选项步骤
+        if (!userChoice) {
+            pushToolResult("未收到您的选择，请重新选择。")
+            return {
+                nextStep: "show_options"
+            }
+        }
         
         return {
             nextStep: "process_choice",
             stateUpdates: {
-                userChoice: undefined
+                userChoice
             }
         }
     }
@@ -430,7 +460,7 @@ export class WorkflowManager {
      * 显示下一步选项步骤
      */
     private handleNextStepOptionsStep = async (params: StepParams): Promise<StepResult> => {
-        const { cline, frameworkPath, askApproval, pushToolResult } = params
+        const { cline, frameworkPath, askApproval, pushToolResult, handleError, removeClosingTag } = params
         
         // 获取工作区根路径
         const rootPath = cline.cwd || process.cwd()
@@ -454,25 +484,194 @@ export class WorkflowManager {
         const missingSections = this.checkEssentialSections(updatedContent)
         
         // 构建选项消息
-        let optionsMessage = "**框架已更新，您可以选择：**\n\n"
+        let optionsMessage = ""
+        let choices = []
         
         if (missingSections.length > 0) {
-            optionsMessage += "1. 继续完善缺失的基本部分：" + missingSections.join(", ") + "\n"
-            optionsMessage += "2. 深入完善已有部分\n"
-            optionsMessage += "3. 结束框架完善\n"
+            optionsMessage = "框架已更新，您希望如何继续？\n\n"
+            choices = [
+                "1. 继续完善缺失的基本部分：" + missingSections.join(", "),
+                "2. 深入完善已有部分",
+                "3. 结束框架完善"
+            ]
         } else {
-            optionsMessage += "1. 继续深入完善已有部分\n"
-            optionsMessage += "2. 结束框架完善\n"
+            optionsMessage = "框架已更新，您希望如何继续？\n\n"
+            choices = [
+                "1. 继续深入完善已有部分",
+                "2. 结束框架完善"
+            ]
         }
         
-        // 显示选项
-        pushToolResult(optionsMessage)
+        // 使用askFollowupQuestion工具询问用户
+        const continueQuestionBlock = {
+            type: "tool_use" as const,
+            name: "ask_followup_question" as const,
+            params: {
+                question: optionsMessage + choices.join("\n")
+            },
+            partial: false,
+        }
         
-        // 直接返回到显示选项步骤，而不是询问用户是否继续
-        return {
+        let nextStepResult = {
             nextStep: "show_options",
             message: "请选择下一步操作。"
         }
+        
+        await cline.toolManager.askFollowupQuestionTool(
+            cline,
+            continueQuestionBlock,
+            askApproval,
+            handleError,
+            async (result: unknown) => {
+                if (result && typeof result === "string") {
+                    const userChoice = result.trim()
+                    
+                    if (missingSections.length > 0) {
+                        if (userChoice.includes("1") || userChoice.toLowerCase().includes("缺失")) {
+                            pushToolResult("您选择了继续完善缺失的基本部分。")
+                            nextStepResult = {
+                                nextStep: "show_options",
+                                message: "请选择要完善的部分。"
+                            }
+                        } else if (userChoice.includes("2") || userChoice.toLowerCase().includes("深入")) {
+                            pushToolResult("您选择了深入完善已有部分。")
+                            nextStepResult = {
+                                nextStep: "show_options",
+                                message: "请选择要深入完善的部分。"
+                            }
+                        } else if (userChoice.includes("3") || userChoice.toLowerCase().includes("结束")) {
+                            pushToolResult("您选择了结束框架完善。框架已保存。")
+                            
+                            // 询问是否切换到writer模式
+                            const switchQuestionBlock = {
+                                type: "tool_use" as const,
+                                name: "ask_followup_question" as const,
+                                params: {
+                                    question: "是否要切换到文字生成模式开始写作？\n\n" +
+                                        "1. 是，开始写作\n" +
+                                        "2. 否，稍后再写"
+                                },
+                                partial: false,
+                            }
+                            
+                            await cline.toolManager.askFollowupQuestionTool(
+                                cline,
+                                switchQuestionBlock,
+                                askApproval,
+                                handleError,
+                                async (result: unknown) => {
+                                    if (result && typeof result === "string") {
+                                        const switchChoice = result.trim()
+                                        
+                                        if (switchChoice.includes("1") || switchChoice.toLowerCase().includes("是")) {
+                                            // 使用switch_mode工具切换到writer模式
+                                            pushToolResult("正在切换到文字生成模式...")
+                                            
+                                            try {
+                                                await cline.recursivelyMakeClineRequests([{
+                                                    type: "tool_use",
+                                                    name: "switch_mode",
+                                                    tool: {
+                                                        name: "switch_mode",
+                                                        input: {
+                                                            mode_slug: "writer",
+                                                            reason: "开始基于框架进行小说创作"
+                                                        }
+                                                    }
+                                                }])
+                                                
+                                                pushToolResult("已切换到文字生成模式。您现在可以开始根据框架创作小说内容了。")
+                                            } catch (error) {
+                                                pushToolResult("模式切换失败，请手动切换到文字生成模式。错误: " + error)
+                                            }
+                                        }
+                                    }
+                                    return true
+                                },
+                                removeClosingTag
+                            )
+                            
+                            nextStepResult = {
+                                nextStep: "complete",
+                                message: "框架完善已完成。"
+                            }
+                        } else {
+                            pushToolResult("未能识别您的选择，将继续显示完善选项。")
+                        }
+                    } else {
+                        if (userChoice.includes("1") || userChoice.toLowerCase().includes("继续")) {
+                            pushToolResult("您选择了继续深入完善已有部分。")
+                            nextStepResult = {
+                                nextStep: "show_options",
+                                message: "请选择要深入完善的部分。"
+                            }
+                        } else if (userChoice.includes("2") || userChoice.toLowerCase().includes("结束")) {
+                            pushToolResult("您选择了结束框架完善。框架已保存。")
+                            
+                            // 询问是否切换到writer模式
+                            const switchQuestionBlock = {
+                                type: "tool_use" as const,
+                                name: "ask_followup_question" as const,
+                                params: {
+                                    question: "是否要切换到文字生成模式开始写作？\n\n" +
+                                        "1. 是，开始写作\n" +
+                                        "2. 否，稍后再写"
+                                },
+                                partial: false,
+                            }
+                            
+                            await cline.toolManager.askFollowupQuestionTool(
+                                cline,
+                                switchQuestionBlock,
+                                askApproval,
+                                handleError,
+                                async (result: unknown) => {
+                                    if (result && typeof result === "string") {
+                                        const switchChoice = result.trim()
+                                        
+                                        if (switchChoice.includes("1") || switchChoice.toLowerCase().includes("是")) {
+                                            // 使用switch_mode工具切换到writer模式
+                                            pushToolResult("正在切换到文字生成模式...")
+                                            
+                                            try {
+                                                await cline.recursivelyMakeClineRequests([{
+                                                    type: "tool_use",
+                                                    name: "switch_mode",
+                                                    tool: {
+                                                        name: "switch_mode",
+                                                        input: {
+                                                            mode_slug: "writer",
+                                                            reason: "开始基于框架进行小说创作"
+                                                        }
+                                                    }
+                                                }])
+                                                
+                                                pushToolResult("已切换到文字生成模式。您现在可以开始根据框架创作小说内容了。")
+                                            } catch (error) {
+                                                pushToolResult("模式切换失败，请手动切换到文字生成模式。错误: " + error)
+                                            }
+                                        }
+                                    }
+                                    return true
+                                },
+                                removeClosingTag
+                            )
+                            
+                            nextStepResult = {
+                                nextStep: "complete",
+                                message: "框架完善已完成。"
+                            }
+                        } else {
+                            pushToolResult("未能识别您的选择，将继续显示完善选项。")
+                        }
+                    }
+                }
+                return true
+            },
+            removeClosingTag
+        )
+        
+        return nextStepResult
     }
     
     /**

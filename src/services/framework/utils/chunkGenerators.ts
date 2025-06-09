@@ -1,4 +1,4 @@
-import { ChapterConfig, EmotionConfig, MarketConfig, PlanConfig, ReflectionConfig, StyleConfig, SystemConfig, ThemeConfig } from "../types";
+import { ChapterConfig, EmotionConfig, MarketConfig, PlanConfig, ReflectionConfig, StyleConfig, SystemConfig, ThemeConfig } from "../novel-framework-refine/types";
 import * as fs from "fs/promises";
 import * as path from "path";
 
