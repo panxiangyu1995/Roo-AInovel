@@ -1,6 +1,6 @@
 import * as path from "path"
 import * as fs from "fs/promises"
-import { prepareReplaceDiff, prepareAppendDiff, displayFileContent } from "../utils/common"
+import {prepareReplaceDiff, prepareAppendDiff, displayFileContent, updateFrameworkFile} from "../utils/common"
 import { findSectionPosition } from "../utils/position"
 import { safeExecute } from "../utils/error-handler"
 
@@ -187,7 +187,7 @@ export async function handleGenreWorkflow(params: any): Promise<boolean> {
                         }
                         
                         // 写入文件
-                        await fs.writeFile(fullPath, updatedContent, "utf8")
+                        await updateFrameworkFile(fullPath, updatedContent)
                         success = true
                         
                         pushToolResult(`已${genreSectionPosition.found ? "更新" : "添加"}小说题材内容。`)

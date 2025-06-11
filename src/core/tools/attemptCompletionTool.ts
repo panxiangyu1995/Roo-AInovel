@@ -30,6 +30,10 @@ export async function attemptCompletionTool(
 	try {
 		const lastMessage = cline.clineMessages.at(-1)
 
+		// 检查当前模式，如果是planner模式，确保不会过早结束任务
+		const { mode } = (await cline.providerRef.deref()?.getState()) || {}
+		const isPlannerMode = mode === "planner"
+
 		if (block.partial) {
 			// 只处理部分结果，不处理命令
 			await cline.say("completion_result", removeClosingTag("result", result), undefined, block.partial)
@@ -44,7 +48,32 @@ export async function attemptCompletionTool(
 
 			cline.consecutiveMistakeCount = 0
 
-			// 发送完成结果
+			// 如果是planner模式，我们应该问用户是否要继续完善框架
+			if (isPlannerMode) {
+				// 发送结果但不结束任务
+				await cline.say("text", result, undefined, false)
+				
+				// 使用askFollowupQuestion工具询问用户是否继续
+				const continueBlock = {
+					type: "tool_use" as const,
+					name: "ask_followup_question" as const,
+					params: {
+						question: "框架创建完成。您希望如何继续？\n\n1. 继续完善框架内容\n2. 结束当前任务"
+					},
+					partial: false
+				}
+				
+				// 将continueBlock添加到cline的userMessageContent中
+				cline.userMessageContent.push({
+					type: "text",
+					text: "现在需要询问用户是否继续完善框架。请使用ask_followup_question工具询问用户，而不是尝试结束任务。"
+				})
+				
+				// 阻止任务结束
+				return
+			}
+
+			// 正常流程 - 非planner模式或者用户选择结束
 			await cline.say("completion_result", result, undefined, false)
 			TelemetryService.instance.captureTaskCompleted(cline.taskId)
 			cline.emit("taskCompleted", cline.taskId, cline.getTokenUsage(), cline.toolUsage)

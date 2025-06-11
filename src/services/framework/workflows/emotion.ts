@@ -1,6 +1,6 @@
 import * as path from "path"
 import * as fs from "fs/promises"
-import { prepareAppendDiff, prepareReplaceDiff } from "../utils/common"
+import {prepareAppendDiff, prepareReplaceDiff, updateFrameworkFile} from "../utils/common"
 import { findSectionPosition } from "../utils/position"
 import { safeExecute } from "../utils/error-handler"
 
@@ -173,7 +173,7 @@ export async function handleEmotionWorkflow(params: any): Promise<boolean> {
                         }
                         
                         // 写入文件
-                        await fs.writeFile(fullPath, updatedContent, "utf8")
+                        await updateFrameworkFile(fullPath, updatedContent)
                         success = true
                         
                         pushToolResult(`已${emotionSectionPosition.found ? "更新" : "添加"}情感设计内容。`)

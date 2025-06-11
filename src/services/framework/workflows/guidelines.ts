@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as fs from "fs/promises"
 import { WorkflowParams } from "../novel-framework-refine/types";
-import { findSectionPosition, prepareAppendDiff, prepareReplaceDiff } from "../utils/common";
+import { findSectionPosition, prepareAppendDiff, prepareReplaceDiff, updateFrameworkFile } from "../utils/common";
 import { safeExecute } from "../utils/error-handler"
 
 /**
@@ -52,24 +52,29 @@ export async function handleGuidelinesWorkflow(params: WorkflowParams): Promise<
             
             if (sectionPosition.found) {
                 // 更新现有注意事项部分
-                updatedContent = prepareReplaceDiff(
-                    frameworkContent,
-                    sectionPosition.startLine,
-                    sectionPosition.endLine,
-                    formattedGuidelines
-                );
+                const beforeSection = frameworkContent.substring(0, sectionPosition.startLine - 1);
+                const afterSection = frameworkContent.substring(sectionPosition.endLine);
+                updatedContent = beforeSection + formattedGuidelines + afterSection;
                 message = "已更新框架中的注意事项部分。";
             } else {
                 // 添加新的注意事项部分
-                updatedContent = prepareAppendDiff(frameworkContent, "\n\n" + formattedGuidelines);
+                updatedContent = frameworkContent + "\n\n" + formattedGuidelines;
                 message = "已添加注意事项部分到框架中。";
             }
             
-            // 写入文件
-            await fs.writeFile(fullPath, updatedContent, "utf8")
-            success = true
+            // 确认是否保存到文件
+            const shouldSave = await askApproval('是否要将注意事项保存到框架文件？');
             
-            pushToolResult(`已${sectionPosition.found ? "更新" : "添加"}注意事项内容。`)
+            if (shouldSave) {
+                // 使用updateFrameworkFile函数更新文件
+                await updateFrameworkFile(fullPath, updatedContent);
+                pushToolResult(message);
+                success = true;
+            } else {
+                pushToolResult('好的，不保存到文件。以下是生成的注意事项内容：\n\n' + formattedGuidelines);
+                success = false;
+                return false;
+            }
             
             // 询问是否继续完善注意事项
             const continueQuestionBlock = {

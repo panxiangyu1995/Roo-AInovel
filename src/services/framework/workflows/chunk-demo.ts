@@ -1,3 +1,4 @@
+import { updateFrameworkFile } from "../utils/common";
 import * as path from "path";
 import * as fs from "fs/promises";
 import { ChunkGenerator, ContentBlock, GenerationStatus } from "../utils/chunkGenerators";
@@ -318,7 +319,7 @@ export async function handleChunkDemoWorkflow(params: any): Promise<boolean> {
       }
       
       // 保存到文件
-      await fs.writeFile(fullPath, finalContent, "utf-8");
+      await updateFrameworkFile(fullPath, finalContent);
       
       pushToolResult(`已成功生成并保存框架内容到文件: ${frameworkPath}`);
       

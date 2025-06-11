@@ -3,7 +3,7 @@ import * as fs from "fs/promises"
 import { TechConfig, WorkflowParams } from "../novel-framework-refine/types"
 import { determineSystemSectionPosition } from "../utils/diff-utils"
 import { generateSystemSection } from "../utils/generators"
-import { prepareAppendDiff, prepareReplaceDiff } from "../utils/common"
+import {prepareAppendDiff, prepareReplaceDiff, updateFrameworkFile} from "../utils/common"
 import { findSectionPosition } from "../utils/position"
 import { safeExecute } from "../utils/error-handler"
 
@@ -189,7 +189,7 @@ export async function handleSystemWorkflow(params: any): Promise<boolean> {
                         }
                         
                         // 写入文件
-                        await fs.writeFile(fullPath, updatedContent, "utf8")
+                        await updateFrameworkFile(fullPath, updatedContent)
                         success = true
                         
                         pushToolResult(`已${systemSectionPosition.found ? "更新" : "添加"}系统设定内容。`)

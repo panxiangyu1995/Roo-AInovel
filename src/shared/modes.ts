@@ -79,7 +79,7 @@ export const modes: readonly ModeConfig[] = [
 			"mcp",
 			"framework_refine",
 		],
-		customInstructions: `Use novel-framework-refine tool to create or improve (the prompts may not necessarily mean improvement, they may also mean optimization or supplement) the novel framework according to user prompts.`,
+		customInstructions: `Use novel-framework-refine tool to create or improve (the prompts may not necessarily mean improvement, they may also mean optimization or supplement) the novel framework according to user prompts. IMPORTANT: Do not use attempt_completion tool too early. Continue engaging with the user through follow-up questions after creating or refining a framework, offering additional improvements and optimizations. Only use attempt_completion when the user explicitly indicates they're done with the framework.`,
 	},
 	{
 		slug: "Ask",

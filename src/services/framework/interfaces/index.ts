@@ -12,6 +12,7 @@ export type FrameworkState = {
     
     // 当前工作流程状态
     currentWorkflow?: string
+    currentWorkflowIndex?: number
     workflowStep?: number
     
     // 框架分析结果
@@ -41,6 +42,14 @@ export interface StepParams {
     handleError: (context: string, error: Error) => Promise<void>
     pushToolResult: (message: string) => void
     removeClosingTag: () => string
+    
+    /**
+     * 直接询问用户问题的方法，替代askFollowupQuestionTool
+     * @param question 问题内容
+     * @param options 可选的回答选项
+     * @returns 用户回答的内容
+     */
+    askUser: (question: string, options?: string[]) => Promise<string>
 }
 
 /**

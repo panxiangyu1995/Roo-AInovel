@@ -152,6 +152,50 @@ export class FrameworkService implements IFrameworkService {
             // 检查文件是否存在
             const fileExists = await fileExistsAtPath(fullPath)
             
+            // 实现askUser函数，用于替代askFollowupQuestionTool的调用
+            const askUser = async (question: string, options?: string[]): Promise<string> => {
+                // 构建问题内容，包含选项（如果提供）
+                let fullQuestion = question;
+                if (options && options.length > 0) {
+                    fullQuestion += '\n\n';
+                    options.forEach((option, index) => {
+                        fullQuestion += `${index + 1}. ${option}\n`;
+                    });
+                }
+                
+                // 创建askFollowupQuestion工具的参数
+                const questionBlock = {
+                    type: "tool_use" as const,
+                    name: "ask_followup_question" as const,
+                    params: {
+                        question: fullQuestion
+                    },
+                    partial: false,
+                };
+                
+                // 用于存储用户回答
+                let userAnswer = "";
+                
+                // 调用askFollowupQuestionTool
+                await cline.toolManager.askFollowupQuestionTool(
+                    cline,
+                    questionBlock,
+                    async () => true, // askApproval
+                    async (context: string, error: Error) => {
+                        console.error(`[AskUser] ${context}:`, error);
+                    }, // handleError
+                    async (result: unknown) => {
+                        if (result && typeof result === "string") {
+                            userAnswer = result.trim();
+                        }
+                        return true;
+                    }, // pushToolResult
+                    () => "" // removeClosingTag
+                );
+                
+                return userAnswer;
+            };
+            
             // 如果文件不存在，则创建基本框架
             if (!fileExists) {
                 await this.createFrameworkFile(
@@ -188,95 +232,55 @@ export class FrameworkService implements IFrameworkService {
                             message
                         })
                     },
-                    removeClosingTag: () => ""
+                    removeClosingTag: () => "",
+                    askUser // 添加askUser函数
                 }
                 
                 // 通知用户框架已创建
                 await stepParams.pushToolResult(`已成功创建小说框架文件：${frameworkPath}`)
                 
-                // 使用askFollowupQuestion工具询问用户是否继续完善框架
-                const continueQuestionBlock = {
-                    type: "tool_use" as const,
-                    name: "ask_followup_question" as const,
-                    params: {
-                        question: "框架已创建，您希望如何继续？\n\n" +
-                            "1. 继续完善框架内容\n" +
-                            "2. 结束框架完善"
-                    },
-                    partial: false,
-                }
+                // 使用askUser方法询问用户是否继续完善框架
+                const userChoice = await stepParams.askUser(
+                    "框架已创建，您希望如何继续？", 
+                    ["继续完善框架内容", "结束框架完善"]
+                );
                 
-                let shouldContinue = false
-                
-                await cline.toolManager.askFollowupQuestionTool(
-                    cline,
-                    continueQuestionBlock,
-                    stepParams.askApproval,
-                    (context: string, error: Error) => stepParams.handleError(context, error),
-                    async (result: unknown) => {
-                        if (result && typeof result === "string") {
-                            const userChoice = result.trim()
-                            shouldContinue = userChoice.includes("1") || userChoice.toLowerCase().includes("继续")
-                        }
-                        return true
-                    },
-                    stepParams.removeClosingTag
-                )
+                const shouldContinue = userChoice.includes("1") || userChoice.toLowerCase().includes("继续");
                 
                 if (shouldContinue) {
-                    // 直接执行显示选项步骤
-                    await this.executeStep("show_options", stepParams)
+                    // 使用有序工作流步骤，而不是显示选项步骤
+                    await this.executeStep("ordered_workflow", stepParams)
                 } else {
                     await stepParams.pushToolResult("您选择了结束框架完善。框架已保存。")
                     
                     // 询问是否切换到writer模式
-                    const switchQuestionBlock = {
-                        type: "tool_use" as const,
-                        name: "ask_followup_question" as const,
-                        params: {
-                            question: "是否要切换到文字生成模式开始写作？\n\n" +
-                                "1. 是，开始写作\n" +
-                                "2. 否，稍后再写"
-                        },
-                        partial: false,
-                    }
+                    const switchChoice = await stepParams.askUser(
+                        "是否要切换到文字生成模式开始写作？",
+                        ["是，开始写作", "否，稍后再写"]
+                    );
                     
-                    await cline.toolManager.askFollowupQuestionTool(
-                        cline,
-                        switchQuestionBlock,
-                        stepParams.askApproval,
-                        (context: string, error: Error) => stepParams.handleError(context, error),
-                        async (result: unknown) => {
-                            if (result && typeof result === "string") {
-                                const switchChoice = result.trim()
-                                
-                                if (switchChoice.includes("1") || switchChoice.toLowerCase().includes("是")) {
-                                    // 使用switch_mode工具切换到writer模式
-                                    stepParams.pushToolResult("正在切换到文字生成模式...")
-                                    
-                                    try {
-                                        await cline.recursivelyMakeClineRequests([{
-                                            type: "tool_use",
-                                            name: "switch_mode",
-                                            tool: {
-                                                name: "switch_mode",
-                                                input: {
-                                                    mode_slug: "writer",
-                                                    reason: "开始基于框架进行小说创作"
-                                                }
-                                            }
-                                        }])
-                                        
-                                        stepParams.pushToolResult("已切换到文字生成模式。您现在可以开始根据框架创作小说内容了。")
-                                    } catch (error) {
-                                        stepParams.pushToolResult("模式切换失败，请手动切换到文字生成模式。错误: " + error)
+                    if (switchChoice.includes("1") || switchChoice.toLowerCase().includes("是")) {
+                        // 使用switch_mode工具切换到writer模式
+                        stepParams.pushToolResult("正在切换到文字生成模式...")
+                        
+                        try {
+                            await cline.recursivelyMakeClineRequests([{
+                                type: "tool_use",
+                                name: "switch_mode",
+                                tool: {
+                                    name: "switch_mode",
+                                    input: {
+                                        mode_slug: "writer",
+                                        reason: "开始基于框架进行小说创作"
                                     }
                                 }
-                            }
-                            return true
-                        },
-                        stepParams.removeClosingTag
-                    )
+                            }])
+                            
+                            stepParams.pushToolResult("已切换到文字生成模式。您现在可以开始根据框架创作小说内容了。")
+                        } catch (error) {
+                            stepParams.pushToolResult("模式切换失败，请手动切换到文字生成模式。错误: " + error)
+                        }
+                    }
                 }
                 
                 return
@@ -320,7 +324,8 @@ export class FrameworkService implements IFrameworkService {
                         message
                     })
                 },
-                removeClosingTag: () => ""
+                removeClosingTag: () => "",
+                askUser // 添加askUser函数
             }
             
             // 执行初始化步骤

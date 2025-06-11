@@ -1,7 +1,9 @@
 import { PlanConfig, WorkflowParams } from "../novel-framework-refine/types"
 import { determinePlanSectionPosition } from "../utils/diff-utils"
 import { generatePlanSection } from "../utils/generators"
-import { prepareAppendDiff, prepareReplaceDiff } from "../utils/common"
+import { prepareAppendDiff, prepareReplaceDiff, updateFrameworkFile } from "../utils/common"
+import fs from "fs/promises"
+import * as path from "path"
 
 /**
  * 处理创作计划工作流
@@ -9,6 +11,12 @@ import { prepareAppendDiff, prepareReplaceDiff } from "../utils/common"
 export async function handlePlanWorkflow({ cline, frameworkPath, frameworkContent, askApproval, handleError, pushToolResult, removeClosingTag }: WorkflowParams) {
     try {
         pushToolResult('让我们完善创作计划部分。请告诉我你的创作时间规划和目标。')
+
+        // 获取工作区根路径
+        const rootPath = cline.cwd || process.cwd()
+        
+        // 构建完整文件路径
+        const fullPath = path.isAbsolute(frameworkPath) ? frameworkPath : path.join(rootPath, frameworkPath)
 
         // 获取时间规划
         const timeQuestion = {
@@ -89,13 +97,15 @@ export async function handlePlanWorkflow({ cline, frameworkPath, frameworkConten
         // 确定创作计划部分的位置
         const position = determinePlanSectionPosition(frameworkContent)
         
-        // 准备差异内容
-        let diff
+        // 准备更新内容
+        let updatedContent: string;
         if (position.hasExistingSection) {
-            diff = prepareReplaceDiff(frameworkContent, position.startLine, position.endLine, planContent)
+            const beforeSection = frameworkContent.substring(0, position.startLine - 1);
+            const afterSection = frameworkContent.substring(position.endLine);
+            updatedContent = beforeSection + planContent + afterSection;
             pushToolResult(`找到了现有的创作计划部分，将更新内容。`)
         } else {
-            diff = prepareAppendDiff(frameworkContent, planContent)
+            updatedContent = frameworkContent + "\n\n" + planContent;
             pushToolResult(`没有找到创作计划部分，将添加新内容。`)
         }
 
@@ -103,8 +113,8 @@ export async function handlePlanWorkflow({ cline, frameworkPath, frameworkConten
         const shouldSave = await askApproval('是否要将创作计划保存到框架文件？')
         
         if (shouldSave) {
-            // 使用diff工具保存更改
-            await cline.workspace.applyDiff(frameworkPath, diff)
+            // 使用updateFrameworkFile函数更新文件
+            await updateFrameworkFile(fullPath, updatedContent);
             pushToolResult('已成功更新创作计划部分！')
             
             // 继续询问是否需要完成其他部分

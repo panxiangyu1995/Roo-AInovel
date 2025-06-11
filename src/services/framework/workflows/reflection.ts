@@ -3,7 +3,7 @@ import * as fs from "fs/promises"
 import { ReflectionConfig, WorkflowParams } from "../novel-framework-refine/types"
 import { determineReflectionSectionPosition } from "../utils/diff-utils"
 import { generateReflectionSection } from "../utils/generators"
-import { prepareAppendDiff, prepareReplaceDiff } from "../utils/common"
+import {prepareAppendDiff, prepareReplaceDiff, updateFrameworkFile} from "../utils/common"
 import { findSectionPosition } from "../utils/position"
 import { safeExecute } from "../utils/error-handler"
 
@@ -179,7 +179,7 @@ export async function handleReflectionWorkflow(params: any): Promise<boolean> {
                         }
                         
                         // 写入文件
-                        await fs.writeFile(fullPath, updatedContent, "utf8")
+                        await updateFrameworkFile(fullPath, updatedContent)
                         success = true
                         
                         pushToolResult(`已${reflectionSectionPosition.found ? "更新" : "添加"}自我反思内容。`)

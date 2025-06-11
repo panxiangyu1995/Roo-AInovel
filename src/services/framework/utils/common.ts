@@ -578,4 +578,24 @@ export function findSectionPosition(content: string, sectionHeaders: string[]): 
         startLine: -1,
         endLine: -1
     }
+}
+
+/**
+ * 直接更新框架文件内容
+ * 替代使用applyDiff更新文件内容
+ * @param filePath 文件路径
+ * @param content 更新后的内容
+ * @returns Promise<void>
+ */
+export async function updateFrameworkFile(filePath: string, content: string): Promise<void> {
+    try {
+        // 确保目录存在
+        const dir = path.dirname(filePath);
+        await fs.mkdir(dir, { recursive: true });
+        
+        // 直接写入文件内容
+        await fs.writeFile(filePath, content, "utf8");
+    } catch (error) {
+        throw new Error(`更新框架文件失败: ${(error as Error).message}`);
+    }
 } 
