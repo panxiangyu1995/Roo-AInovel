@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import * as path from "path"
 import * as fs from "fs/promises"
-import { IFrameworkService, FrameworkState, StepParams, StepResult, WorkflowParams } from "./interfaces"
+import { IFrameworkService, FrameworkState, StepParams, StepResult, WorkflowParams, WorkflowSpecialResult } from "./interfaces"
 import { FrameworkStateManager } from "./state-manager"
 import { WorkflowManager } from "./workflow-manager"
 import { FrameworkConfigManager } from "./config-manager"
@@ -135,7 +135,8 @@ export class FrameworkService implements IFrameworkService {
         path: string, 
         area?: string,
         template?: boolean,
-        simplify_tasks?: boolean
+        simplify_tasks?: boolean,
+        isNewFile?: boolean
     ): Promise<void> {
         if (!this._initialized) {
             throw new Error("框架服务未初始化")
@@ -196,8 +197,8 @@ export class FrameworkService implements IFrameworkService {
                 return userAnswer;
             };
             
-            // 如果文件不存在，则创建基本框架
-            if (!fileExists) {
+            // 如果文件不存在或明确指定为新建文件，则创建基本框架
+            if (!fileExists || isNewFile) {
                 await this.createFrameworkFile(
                     cline,
                     frameworkPath,
@@ -239,20 +240,14 @@ export class FrameworkService implements IFrameworkService {
                 // 通知用户框架已创建
                 await stepParams.pushToolResult(`已成功创建小说框架文件：${frameworkPath}`)
                 
-                // 使用askUser方法询问用户是否继续完善框架
-                const userChoice = await stepParams.askUser(
-                    "框架已创建，您希望如何继续？", 
-                    ["继续完善框架内容", "结束框架完善"]
-                );
+                // 显示创建成功的消息
+                await stepParams.pushToolResult(`已成功创建小说框架文件：${frameworkPath}\n框架包含14个标准部分，现在将引导您逐步完善这些部分。`)
                 
-                const shouldContinue = userChoice.includes("1") || userChoice.toLowerCase().includes("继续");
+                // 直接进入有序工作流步骤，不再询问用户是否继续
+                const result = await this.executeStep("ordered_workflow", stepParams)
                 
-                if (shouldContinue) {
-                    // 使用有序工作流步骤，而不是显示选项步骤
-                    await this.executeStep("ordered_workflow", stepParams)
-                } else {
-                    await stepParams.pushToolResult("您选择了结束框架完善。框架已保存。")
-                    
+                // 如果工作流执行完成且用户选择结束，询问是否切换到writer模式
+                if (result.completed) {
                     // 询问是否切换到writer模式
                     const switchChoice = await stepParams.askUser(
                         "是否要切换到文字生成模式开始写作？",
@@ -329,7 +324,31 @@ export class FrameworkService implements IFrameworkService {
             }
             
             // 执行初始化步骤
-            await this.executeStep("init", stepParams)
+            const result = await this.executeStep("init", stepParams)
+            
+            // 如果用户选择切换到写作模式
+            if (result.stateUpdates?.switchToWriterMode) {
+                // 使用switch_mode工具切换到writer模式
+                stepParams.pushToolResult("正在切换到文字生成模式...")
+                
+                try {
+                    await cline.recursivelyMakeClineRequests([{
+                        type: "tool_use",
+                        name: "switch_mode",
+                        tool: {
+                            name: "switch_mode",
+                            input: {
+                                mode_slug: "writer",
+                                reason: "开始基于框架进行小说创作"
+                            }
+                        }
+                    }])
+                    
+                    stepParams.pushToolResult("已切换到文字生成模式。您现在可以开始根据框架创作小说内容了。")
+                } catch (error) {
+                    stepParams.pushToolResult("模式切换失败，请手动切换到文字生成模式。错误: " + error)
+                }
+            }
         } catch (error) {
             console.error("[FrameworkService] 处理框架完善请求时出错:", error)
             throw error
@@ -375,9 +394,9 @@ export class FrameworkService implements IFrameworkService {
      * 执行特定工作流
      * @param workflowName 工作流名称
      * @param params 工作流参数
-     * @returns 工作流执行结果
+     * @returns 工作流执行结果或特殊返回值
      */
-    public async executeWorkflow(workflowName: string, params: WorkflowParams): Promise<boolean> {
+    public async executeWorkflow(workflowName: string, params: WorkflowParams): Promise<boolean | WorkflowSpecialResult> {
         if (!this._initialized) {
             throw new Error("框架服务未初始化")
         }

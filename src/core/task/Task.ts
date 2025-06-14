@@ -1522,35 +1522,51 @@ export class Task extends EventEmitter<ClineEvents> {
 			maxReadFileLine,
 		} = state ?? {}
 
-		return await (async () => {
-			const provider = this.providerRef.deref()
+		const provider = this.providerRef.deref()
 
-			if (!provider) {
-				throw new Error("Provider not available")
+		if (!provider) {
+			throw new Error("Provider not available")
+		}
+
+		// 获取系统提示词
+		let systemPrompt = await SYSTEM_PROMPT(
+			provider.context,
+			this.cwd,
+			(this.api.getModel().info.supportsComputerUse ?? false) && (browserToolEnabled ?? true),
+			mcpHub,
+			this.diffStrategy,
+			browserViewportSize,
+			mode,
+			customModePrompts,
+			customModes,
+			customInstructions,
+			this.diffEnabled,
+			experiments,
+			enableMcpServerCreation,
+			language,
+			rooIgnoreInstructions,
+			maxReadFileLine !== -1,
+			{
+				maxConcurrentFileReads,
+			},
+		)
+
+		try {
+			// 导入规则应用流程服务
+			const { ruleApplicationFlow } = await import("../../services/rules/RuleApplicationFlow")
+			
+			// 如果模式是文字生成、扩写、优化或剧本模式，应用规则
+			if (mode === "writer" || mode === "expand" || mode === "optimizer" || mode === "script") {
+				// 应用规则到提示词
+				systemPrompt = await ruleApplicationFlow.startFlow(mode, systemPrompt)
+				console.log(`已应用规则到${mode}模式的提示词`)
 			}
+		} catch (error) {
+			console.error("规则应用流程执行出错:", error)
+			// 出错时使用原始提示词
+		}
 
-			return SYSTEM_PROMPT(
-				provider.context,
-				this.cwd,
-				(this.api.getModel().info.supportsComputerUse ?? false) && (browserToolEnabled ?? true),
-				mcpHub,
-				this.diffStrategy,
-				browserViewportSize,
-				mode,
-				customModePrompts,
-				customModes,
-				customInstructions,
-				this.diffEnabled,
-				experiments,
-				enableMcpServerCreation,
-				language,
-				rooIgnoreInstructions,
-				maxReadFileLine !== -1,
-				{
-					maxConcurrentFileReads,
-				},
-			)
-		})()
+		return systemPrompt
 	}
 
 	public async *attemptApiRequest(retryAttempt: number = 0): ApiStream {

@@ -27,6 +27,7 @@ import { McpServerManager } from "./services/mcp/McpServerManager"
 import { CodeIndexManager } from "./services/code-index/manager"
 import { migrateSettings } from "./utils/migrateSettings"
 import { API } from "./extension/api"
+import { ruleService } from "./services/rules/RuleService"
 
 import {
 	handleUri,
@@ -193,6 +194,14 @@ export async function activate(context: vscode.ExtensionContext) {
 		console.log('框架服务初始化成功')
 	} catch (error) {
 		console.error('框架服务初始化失败:', error)
+	}
+
+	// 初始化规则服务
+	try {
+		await ruleService.initialize()
+		console.log('规则服务初始化成功')
+	} catch (error) {
+		console.error('规则服务初始化失败:', error)
 	}
 
 	return new API(outputChannel, provider, socketPath, enableLogging)

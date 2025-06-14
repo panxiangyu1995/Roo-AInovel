@@ -5,6 +5,57 @@ import { ToolUse } from "../../shared/tools"
 import { getWorkspacePath } from "../../utils/path"
 import { fileExistsAtPath } from "../../utils/fs"
 import { Task } from "../task/Task"
+import { loadRuleFiles, processNovelFramework } from "../prompts/sections/custom-instructions"
+
+/**
+ * 解析注释中的规则文件引用
+ * 格式：@.rules.xxx框架.md 或 @xxx.md
+ * @param comment 注释内容
+ * @param cwd 工作目录
+ * @returns 解析后的注释内容
+ */
+async function parseRuleReferences(comment: string, cwd: string): Promise<string> {
+	// 匹配 @.rules.xxx框架.md 或 @xxx.md 格式的引用
+	const ruleRefRegex = /@(\.rules\.[^@\s]+\.md|[^@\s]+\.md)/g
+	const matches = comment.match(ruleRefRegex)
+	
+	if (!matches || matches.length === 0) {
+		return comment
+	}
+	
+	let enhancedComment = comment
+	
+	// 处理每个规则文件引用
+	for (const match of matches) {
+		const fileName = match.substring(1) // 去掉@前缀
+		const filePath = path.join(cwd, fileName)
+		
+		try {
+			// 检查文件是否存在
+			if (await fileExistsAtPath(filePath)) {
+				// 读取文件内容
+				const content = await fs.promises.readFile(filePath, "utf8")
+				
+				// 处理框架文件内容
+				const processedContent = fileName.startsWith('.rules.') || 
+					fileName.includes('框架') || 
+					fileName.includes('framework') ? 
+					await processNovelFramework(content) : content
+				
+				// 在注释中添加规则文件内容
+				const ruleContent = `\n\n引用自 ${fileName}:\n${processedContent}\n`
+				
+				// 替换引用为实际内容
+				enhancedComment = enhancedComment.replace(match, ruleContent)
+			}
+		} catch (error) {
+			console.error(`处理规则文件引用时出错: ${error}`)
+			// 保留原始引用
+		}
+	}
+	
+	return enhancedComment
+}
 
 /**
  * 添加小说注释工具
@@ -103,10 +154,20 @@ export async function novelCommentTool(
 				return
 			}
 
-			// 应用所有注释（从后向前，避免行号变化）
-			commentActions.sort((a, b) => b.line - a.line)
+			// 处理规则文件引用
+			const processedCommentActions = await Promise.all(
+				commentActions.map(async (action) => {
+					return {
+						line: action.line,
+						comment: await parseRuleReferences(action.comment, rootPath),
+					}
+				})
+			)
 
-			for (const action of commentActions) {
+			// 应用所有注释（从后向前，避免行号变化）
+			processedCommentActions.sort((a, b) => b.line - a.line)
+
+			for (const action of processedCommentActions) {
 				const htmlComment = `<!-- ${commentType}: ${action.comment} -->`
 				lines.splice(action.line - 1, 0, htmlComment)
 			}
@@ -115,7 +176,7 @@ export async function novelCommentTool(
 			await fs.promises.writeFile(fullPath, lines.join("\n"), "utf8")
 
 			// 返回成功结果
-			pushToolResult(`Successfully added ${commentActions.length} comments to ${filePath}.`)
+			pushToolResult(`Successfully added ${processedCommentActions.length} comments to ${filePath}.`)
 			return
 		}
 
@@ -125,8 +186,11 @@ export async function novelCommentTool(
 			throw new Error(`Line number ${lineNumber} exceeds file length ${lines.length}`)
 		}
 
+		// 处理规则文件引用
+		const processedComment = await parseRuleReferences(comment, rootPath)
+
 		// 构建HTML注释
-		const htmlComment = `<!-- ${commentType}: ${comment} -->`
+		const htmlComment = `<!-- ${commentType}: ${processedComment} -->`
 
 		// 在指定行添加注释
 		lines.splice(lineNumber - 1, 0, htmlComment)

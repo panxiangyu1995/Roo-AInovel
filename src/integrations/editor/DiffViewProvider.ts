@@ -100,6 +100,30 @@ export class DiffViewProvider {
 			throw new Error("Required values not set")
 		}
 
+		// 如果是最终内容并且是markdown文件，应用去AI化处理
+		if (isFinal && this.relPath.toLowerCase().endsWith('.md')) {
+			try {
+				// 获取当前模式
+				const editor = vscode.window.activeTextEditor
+				if (editor) {
+					const document = editor.document
+					const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri)
+					if (workspaceFolder) {
+						// 导入规则应用流程服务
+						const { ruleApplicationFlow } = await import("../../services/rules/RuleApplicationFlow")
+						
+						// 应用去AI化处理
+						console.log(`对${this.relPath}应用去AI化处理...`)
+						accumulatedContent = await ruleApplicationFlow.applyDeAIProcessing(accumulatedContent)
+						console.log(`去AI化处理完成`)
+					}
+				}
+			} catch (error) {
+				console.error("去AI化处理出错:", error)
+				// 出错时使用原始内容
+			}
+		}
+
 		this.newContent = accumulatedContent
 		const accumulatedLines = accumulatedContent.split("\n")
 

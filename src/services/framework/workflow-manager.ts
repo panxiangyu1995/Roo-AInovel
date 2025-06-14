@@ -1,6 +1,6 @@
 import * as path from "path"
 import * as fs from "fs/promises"
-import { FrameworkState, StepHandler, StepParams, StepResult, WorkflowHandler, WorkflowParams } from "./interfaces"
+import { FrameworkState, StepHandler, StepParams, StepResult, WorkflowHandler, WorkflowParams, WorkflowSpecialResult } from "./interfaces"
 import { FrameworkStateManager } from "./state-manager"
 import { analyzeFramework } from "./utils/analysis"
 import { RefinementOption } from "./novel-framework-refine/types"
@@ -59,6 +59,9 @@ export class WorkflowManager {
         // 有序工作流步骤
         this._steps.set("ordered_workflow", this.handleOrderedWorkflowStep)
         
+        // 优化所有部分步骤
+        this._steps.set("optimize_all_sections", this.handleOptimizeAllSectionsStep)
+        
         // 完成步骤
         this._steps.set("complete", this.handleCompleteStep)
     }
@@ -105,7 +108,7 @@ export class WorkflowManager {
      * @param params 工作流参数
      * @returns 工作流执行结果
      */
-    public async executeWorkflow(workflowName: string, params: WorkflowParams): Promise<boolean> {
+    public async executeWorkflow(workflowName: string, params: WorkflowParams): Promise<boolean | WorkflowSpecialResult> {
         const handler = this._workflows.get(workflowName)
         
         if (!handler) {
@@ -411,10 +414,20 @@ export class WorkflowManager {
         }
         
         try {
-            const success = await this.executeWorkflow(currentWorkflow, workflowParams)
+            const result = await this.executeWorkflow(currentWorkflow, workflowParams)
             
-            if (success) {
-                // 无论成功与否，都进入下一步选项步骤，而不是直接完成
+            // 检查是否有特殊返回值
+            if (result && typeof result === 'object' && result.type === 'optimize_all_sections') {
+                // 工作流请求优化所有部分
+                return {
+                    nextStep: "optimize_all_sections",
+                    message: "准备一次性优化所有框架部分..."
+                }
+            }
+            
+            // 处理普通的布尔返回值
+            if (result === true) {
+                // 成功完成工作流
                 return {
                     nextStep: "next_step",
                     message: `${selectedOption.title} 完善成功！`
@@ -443,20 +456,20 @@ export class WorkflowManager {
         
         // 定义框架的标准部分
         const frameworkSections = [
-            { id: "basic_info", title: "基本信息", workflow: "basic_info" },
-            { id: "theme", title: "主题与中心思想", workflow: "theme" },
-            { id: "characters", title: "角色设计", workflow: "characters" },
-            { id: "setting", title: "世界观设定", workflow: "setting" },
-            { id: "plot", title: "情节发展", workflow: "plot" },
-            { id: "outline", title: "故事大纲", workflow: "outline" },
-            { id: "conflict", title: "冲突设计", workflow: "conflict" },
-            { id: "climax", title: "高潮安排", workflow: "climax" },
-            { id: "pov", title: "视角选择", workflow: "pov" },
-            { id: "tone", title: "语调与风格", workflow: "tone" },
-            { id: "dialogue", title: "对话设计", workflow: "dialogue" },
-            { id: "symbolism", title: "象征与隐喻", workflow: "symbolism" },
-            { id: "structure", title: "结构组织", workflow: "structure" },
-            { id: "ending", title: "结局设计", workflow: "ending" }
+            { id: "genre", title: "小说题材", workflow: "genre" },
+            { id: "character", title: "角色设计", workflow: "character" },
+            { id: "plot", title: "情节大纲", workflow: "plot" },
+            { id: "world", title: "世界观设定", workflow: "world" },
+            { id: "theme", title: "主题元素", workflow: "theme" },
+            { id: "chapter-outline", title: "章节规划", workflow: "chapter-outline" },
+            { id: "style", title: "叙事风格", workflow: "style" },
+            { id: "writing-technique", title: "写作手法", workflow: "writing-technique" },
+            { id: "market", title: "市场定位", workflow: "market" },
+            { id: "tech", title: "系统设定", workflow: "tech" },
+            { id: "emotion", title: "情感设计", workflow: "emotion" },
+            { id: "reflection", title: "自我反思", workflow: "reflection" },
+            { id: "plan", title: "创作计划", workflow: "plan" },
+            { id: "guidelines", title: "创作注意事项", workflow: "guidelines" }
         ]
         
         // 获取当前工作流索引
@@ -470,14 +483,28 @@ export class WorkflowManager {
         // 获取当前要处理的部分
         const currentSection = frameworkSections[currentIndex]
         
+        // 构建选项列表 - 初始阶段的选项
+        const options = [
+            "完善此部分", 
+            "跳过此部分"
+        ]
+        
+        // 只有在工作流开始时才显示这些选项，避免重复显示
+        if (!state.hasEnteredWorkflow) {
+            options.push("跳到指定部分")
+            options.push("优化所有架构内容")
+            options.push("结束框架完善并切换到写作模式")
+            options.push("结束框架完善")
+        }
+        
         // 使用askUser方法询问用户是否要完善当前部分
         const userChoice = await params.askUser(
-            `现在将完善"${currentSection.title}"部分，您希望如何继续？`,
-            ["完善此部分", "跳过此部分", "结束框架完善"]
+            `现在将完善"${currentSection.title}"部分，您希望如何继续？\n\n这是第 ${currentIndex + 1}/${frameworkSections.length} 个部分。`,
+            options
         )
         
         // 处理用户选择
-        if (userChoice.includes("1") || userChoice.toLowerCase().includes("完善")) {
+        if (userChoice.includes("1") || userChoice.toLowerCase().includes("完善此部分")) {
             // 用户选择完善当前部分
             const selectedOption = {
                 id: currentSection.id,
@@ -486,13 +513,16 @@ export class WorkflowManager {
                 area: currentSection.workflow
             }
             
+            pushToolResult(`您选择了完善: ${selectedOption.title}`)
+            
             return {
                 nextStep: "execute_workflow",
                 message: `您选择了完善: ${selectedOption.title}`,
                 stateUpdates: {
                     selectedOption,
                     currentWorkflow: selectedOption.area,
-                    currentWorkflowIndex: currentIndex
+                    currentWorkflowIndex: currentIndex,
+                    hasEnteredWorkflow: true // 标记已进入工作流
                 }
             }
         } else if (userChoice.includes("2") || userChoice.toLowerCase().includes("跳过")) {
@@ -503,11 +533,70 @@ export class WorkflowManager {
             return {
                 nextStep: "ordered_workflow",
                 stateUpdates: {
-                    currentWorkflowIndex: currentIndex + 1
+                    currentWorkflowIndex: currentIndex + 1,
+                    hasEnteredWorkflow: true // 标记已进入工作流
+                }
+            }
+        } else if ((userChoice.includes("3") || userChoice.toLowerCase().includes("跳到指定")) && !state.hasEnteredWorkflow) {
+            // 用户选择跳到指定部分
+            // 构建部分选项列表
+            const sectionOptions = frameworkSections.map((section, idx) => 
+                `${section.title} (${idx + 1}/${frameworkSections.length})`
+            )
+            
+            // 询问用户想跳到哪个部分
+            const sectionChoice = await params.askUser(
+                "请选择您想要跳转到的部分：",
+                sectionOptions
+            )
+            
+            // 确定选择的索引
+            let targetIndex = 0
+            for (let i = 0; i < sectionOptions.length; i++) {
+                if (sectionChoice.includes(`${i + 1}`) || sectionChoice.includes(frameworkSections[i].title)) {
+                    targetIndex = i
+                    break
+                }
+            }
+            
+            pushToolResult(`您选择了跳转到: ${frameworkSections[targetIndex].title}`)
+            
+            // 跳转到选定部分
+            return {
+                nextStep: "ordered_workflow",
+                stateUpdates: {
+                    currentWorkflowIndex: targetIndex,
+                    hasEnteredWorkflow: true // 标记已进入工作流
+                }
+            }
+        } else if ((userChoice.includes("4") || userChoice.toLowerCase().includes("优化所有")) && !state.hasEnteredWorkflow) {
+            // 用户选择优化所有架构内容
+            pushToolResult("您选择了优化所有架构内容，将一次性优化所有部分。")
+            
+            // 调用优化所有部分步骤
+            return {
+                nextStep: "optimize_all_sections",
+                message: "准备一次性优化所有框架部分...",
+                stateUpdates: {
+                    hasEnteredWorkflow: true // 标记已进入工作流
+                }
+            }
+        } else if ((userChoice.includes("5") || userChoice.toLowerCase().includes("切换到写作")) && !state.hasEnteredWorkflow) {
+            // 用户选择结束框架完善并切换到写作模式
+            pushToolResult("您选择了结束框架完善并切换到写作模式。")
+            
+            return {
+                nextStep: "complete",
+                message: "准备切换到写作模式。",
+                completed: true,
+                stateUpdates: {
+                    switchToWriterMode: true
                 }
             }
         } else {
             // 用户选择结束框架完善
+            pushToolResult("您选择了结束框架完善。框架已保存。")
+            
             return {
                 nextStep: "complete",
                 message: "框架完善已结束。",
@@ -522,22 +611,63 @@ export class WorkflowManager {
     private handleNextStepOptionsStep = async (params: StepParams): Promise<StepResult> => {
         const { state, pushToolResult } = params
         
-        // 是否继续在当前部分深入
+        // 获取当前工作流信息
+        const currentWorkflow = state.currentWorkflow
+        const selectedOption = state.selectedOption
+        
+        // 定义框架的标准部分
+        const frameworkSections = [
+            { id: "genre", title: "小说题材", workflow: "genre" },
+            { id: "character", title: "角色设计", workflow: "character" },
+            { id: "plot", title: "情节大纲", workflow: "plot" },
+            { id: "world", title: "世界观设定", workflow: "world" },
+            { id: "theme", title: "主题元素", workflow: "theme" },
+            { id: "chapter-outline", title: "章节规划", workflow: "chapter-outline" },
+            { id: "style", title: "叙事风格", workflow: "style" },
+            { id: "writing-technique", title: "写作手法", workflow: "writing-technique" },
+            { id: "market", title: "市场定位", workflow: "market" },
+            { id: "tech", title: "系统设定", workflow: "tech" },
+            { id: "emotion", title: "情感设计", workflow: "emotion" },
+            { id: "reflection", title: "自我反思", workflow: "reflection" },
+            { id: "plan", title: "创作计划", workflow: "plan" },
+            { id: "guidelines", title: "创作注意事项", workflow: "guidelines" }
+        ]
+        
+        // 获取当前工作流索引
+        let currentIndex = state.currentWorkflowIndex !== undefined ? state.currentWorkflowIndex : 0
+        
+        // 构建选项提示信息
+        let promptMessage = ""
+        if (selectedOption) {
+            promptMessage = `您已完成"${selectedOption.title}"部分的完善。\n\n`
+        }
+        
+        promptMessage += `这是第 ${currentIndex + 1}/${frameworkSections.length} 个部分。\n\n您希望如何继续？`
+        
+        // 构建选项列表 - 后续阶段的选项
         const continueOptions = [
             "继续完善当前部分",
-            "移动到下一个部分",
-            "结束框架完善"
+            "移动到下一个部分"
         ]
+        
+        // 只有在完成一个部分的工作流后才显示这些高级选项
+        if (state.hasEnteredWorkflow) {
+            continueOptions.push("跳到指定部分")
+            continueOptions.push("优化所有架构内容")
+            continueOptions.push("结束框架完善并切换到写作模式")
+            continueOptions.push("结束框架完善")
+        }
         
         // 使用askUser方法询问用户
         const userChoice = await params.askUser(
-            "您希望如何继续？", 
+            promptMessage, 
             continueOptions
         )
         
         // 处理用户选择
         if (userChoice.includes("1") || userChoice.toLowerCase().includes("继续完善当前")) {
             // 用户选择继续完善当前部分
+            pushToolResult("您选择了继续完善当前部分。")
             return {
                 nextStep: "execute_workflow",
                 stateUpdates: {
@@ -546,14 +676,95 @@ export class WorkflowManager {
             }
         } else if (userChoice.includes("2") || userChoice.toLowerCase().includes("移动到下一个")) {
             // 用户选择移动到下一个部分
+            pushToolResult("您选择了移动到下一个部分。")
+            
+            // 如果已经是最后一个部分，询问是否切换到写作模式
+            if (currentIndex >= frameworkSections.length - 1) {
+                const switchChoice = await params.askUser(
+                    "您已完成所有部分的完善。是否要切换到文字生成模式开始写作？",
+                    ["是，开始写作", "否，结束框架完善"]
+                )
+                
+                if (switchChoice.includes("1") || switchChoice.toLowerCase().includes("是")) {
+                    return {
+                        nextStep: "complete",
+                        message: "准备切换到写作模式。",
+                        completed: true,
+                        stateUpdates: {
+                            switchToWriterMode: true
+                        }
+                    }
+                } else {
+                    return {
+                        nextStep: "complete",
+                        message: "框架完善已结束。",
+                        completed: true
+                    }
+                }
+            }
+            
             return {
                 nextStep: "ordered_workflow",
                 stateUpdates: {
-                    continueInCurrentSection: false
+                    continueInCurrentSection: false,
+                    currentWorkflowIndex: currentIndex + 1
+                }
+            }
+        } else if ((userChoice.includes("3") || userChoice.toLowerCase().includes("跳到指定")) && state.hasEnteredWorkflow) {
+            // 用户选择跳到指定部分
+            // 构建部分选项列表
+            const sectionOptions = frameworkSections.map((section, idx) => 
+                `${section.title} (${idx + 1}/${frameworkSections.length})`
+            )
+            
+            // 询问用户想跳到哪个部分
+            const sectionChoice = await params.askUser(
+                "请选择您想要跳转到的部分：",
+                sectionOptions
+            )
+            
+            // 确定选择的索引
+            let targetIndex = 0
+            for (let i = 0; i < sectionOptions.length; i++) {
+                if (sectionChoice.includes(`${i + 1}`) || sectionChoice.includes(frameworkSections[i].title)) {
+                    targetIndex = i
+                    break
+                }
+            }
+            
+            pushToolResult(`您选择了跳转到: ${frameworkSections[targetIndex].title}`)
+            
+            // 跳转到选定部分
+            return {
+                nextStep: "ordered_workflow",
+                stateUpdates: {
+                    currentWorkflowIndex: targetIndex
+                }
+            }
+        } else if ((userChoice.includes("4") || userChoice.toLowerCase().includes("优化所有")) && state.hasEnteredWorkflow) {
+            // 用户选择优化所有架构内容
+            pushToolResult("您选择了优化所有架构内容，将一次性优化所有部分。")
+            
+            // 调用优化所有部分步骤
+            return {
+                nextStep: "optimize_all_sections",
+                message: "准备一次性优化所有框架部分..."
+            }
+        } else if ((userChoice.includes("5") || userChoice.toLowerCase().includes("切换到写作")) && state.hasEnteredWorkflow) {
+            // 用户选择结束框架完善并切换到写作模式
+            pushToolResult("您选择了结束框架完善并切换到写作模式。")
+            
+            return {
+                nextStep: "complete",
+                message: "准备切换到写作模式。",
+                completed: true,
+                stateUpdates: {
+                    switchToWriterMode: true
                 }
             }
         } else {
             // 用户选择结束框架完善
+            pushToolResult("您选择了结束框架完善。")
             return {
                 nextStep: "complete",
                 message: "框架完善已结束。",
@@ -563,11 +774,173 @@ export class WorkflowManager {
     }
     
     /**
+     * 处理优化所有部分步骤
+     */
+    private handleOptimizeAllSectionsStep = async (params: StepParams): Promise<StepResult> => {
+        const { cline, frameworkPath, state, askApproval, handleError, pushToolResult, removeClosingTag } = params
+        
+        // 定义框架的标准部分
+        const frameworkSections = [
+            { id: "genre", title: "小说题材", workflow: "genre" },
+            { id: "character", title: "角色设计", workflow: "character" },
+            { id: "plot", title: "情节大纲", workflow: "plot" },
+            { id: "world", title: "世界观设定", workflow: "world" },
+            { id: "theme", title: "主题元素", workflow: "theme" },
+            { id: "chapter-outline", title: "章节规划", workflow: "chapter-outline" },
+            { id: "style", title: "叙事风格", workflow: "style" },
+            { id: "writing-technique", title: "写作手法", workflow: "writing-technique" },
+            { id: "market", title: "市场定位", workflow: "market" },
+            { id: "tech", title: "系统设定", workflow: "tech" },
+            { id: "emotion", title: "情感设计", workflow: "emotion" },
+            { id: "reflection", title: "自我反思", workflow: "reflection" },
+            { id: "plan", title: "创作计划", workflow: "plan" },
+            { id: "guidelines", title: "创作注意事项", workflow: "guidelines" }
+        ]
+        
+        // 获取工作区根路径
+        const rootPath = cline.cwd || process.cwd()
+        
+        // 构建完整文件路径
+        const fullPath = path.isAbsolute(frameworkPath) ? frameworkPath : path.join(rootPath, frameworkPath)
+        
+        // 读取框架文件内容
+        let frameworkContent = ""
+        try {
+            frameworkContent = await fs.readFile(fullPath, "utf8")
+        } catch (error) {
+            return {
+                nextStep: "complete",
+                message: `读取文件时出错。`,
+                completed: true
+            }
+        }
+        
+        // 通知用户开始优化所有部分
+        pushToolResult("开始一次性优化所有框架部分，这可能需要一些时间...")
+        
+        // 构建提示词
+        const prompt = `
+请分析并优化以下小说框架的所有部分。这个框架包含14个标准部分，请一次性优化所有部分，使其更加完整、连贯和有创意。
+
+当前框架内容：
+${frameworkContent}
+
+请提供优化后的完整框架内容，保持原有的Markdown格式和部分标题。
+`
+        
+        try {
+            // 调用AI优化所有部分
+            const response = await cline.say(
+                "user",
+                prompt,
+                {
+                    system: "你是一位专业的小说框架优化专家，擅长分析和优化小说框架的各个部分，使其更加完整、连贯和有创意。"
+                }
+            )
+            
+            // 获取AI回复内容
+            const optimizedContent = response?.content?.parts?.[0]?.text || ""
+            
+            // 如果回复内容为空，返回错误
+            if (!optimizedContent) {
+                pushToolResult("优化失败，未能获取优化结果。")
+                return {
+                    nextStep: "ordered_workflow",
+                    message: "优化失败，请尝试逐个部分进行优化。",
+                    stateUpdates: {
+                        currentWorkflowIndex: 0
+                    }
+                }
+            }
+            
+            // 写入优化后的内容
+            try {
+                await fs.writeFile(fullPath, optimizedContent, "utf8")
+                pushToolResult("所有框架部分已一次性优化完成！")
+            } catch (error) {
+                pushToolResult(`写入文件时出错: ${(error as Error).message}`)
+                return {
+                    nextStep: "ordered_workflow",
+                    message: "写入文件失败，请尝试逐个部分进行优化。",
+                    stateUpdates: {
+                        currentWorkflowIndex: 0
+                    }
+                }
+            }
+            
+            // 询问用户下一步操作
+            const nextChoice = await params.askUser(
+                "所有框架部分已一次性优化完成！您希望如何继续？",
+                ["继续逐个完善部分", "结束框架完善并切换到写作模式", "结束框架完善"]
+            )
+            
+            if (nextChoice.includes("1") || nextChoice.toLowerCase().includes("继续")) {
+                // 用户选择继续逐个完善部分
+                return {
+                    nextStep: "ordered_workflow",
+                    stateUpdates: {
+                        currentWorkflowIndex: 0
+                    }
+                }
+            } else if (nextChoice.includes("2") || nextChoice.toLowerCase().includes("切换到写作")) {
+                // 用户选择结束框架完善并切换到写作模式
+                return {
+                    nextStep: "complete",
+                    message: "准备切换到写作模式。",
+                    completed: true,
+                    stateUpdates: {
+                        switchToWriterMode: true
+                    }
+                }
+            } else {
+                // 用户选择结束框架完善
+                return {
+                    nextStep: "complete",
+                    message: "框架完善已结束。",
+                    completed: true
+                }
+            }
+        } catch (error) {
+            pushToolResult(`优化过程中出错: ${(error as Error).message}`)
+            return {
+                nextStep: "ordered_workflow",
+                message: "优化过程中出错，请尝试逐个部分进行优化。",
+                stateUpdates: {
+                    currentWorkflowIndex: 0
+                }
+            }
+        }
+    }
+    
+    /**
      * 处理完成步骤
      */
     private handleCompleteStep = async (params: StepParams): Promise<StepResult> => {
+        const { pushToolResult } = params
+        
+        // 显示完成消息
+        pushToolResult("框架完善已完成。您可以随时使用novel-framework-refine工具继续完善框架。")
+        
         // 清除状态
         await this._stateManager.clearState()
+        
+        // 询问是否切换到写作模式
+        const switchChoice = await params.askUser(
+            "是否要切换到文字生成模式开始写作？",
+            ["是，开始写作", "否，稍后再写"]
+        )
+        
+        if (switchChoice.includes("1") || switchChoice.toLowerCase().includes("是")) {
+            // 用户选择切换到写作模式
+            return {
+                nextStep: "complete",
+                message: "准备切换到写作模式。",
+                completed: true,
+                stateUpdates: {
+                    switchToWriterMode: true
+                }
+            }
+        }
         
         return {
             nextStep: "complete",

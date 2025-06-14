@@ -82,6 +82,7 @@ export const toolParamNames = [
 	"layout",
 	"panels",
 	"updateType",
+	"style_file",
 ] as const
 
 export type ToolParamName = (typeof toolParamNames)[number]
@@ -213,7 +214,7 @@ export interface InspirationToolUse extends ToolUse {
 
 export interface ImitationToolUse extends ToolUse {
 	name: "imitation"
-	params: Partial<Pick<Record<ToolParamName, string>, "path" | "text" | "output_path">>
+	params: Partial<Pick<Record<ToolParamName, string>, "path" | "text" | "output_path" | "mode" | "style_file">>
 }
 
 export interface NovelToScriptToolUse extends ToolUse {

@@ -14,6 +14,7 @@ export type FrameworkState = {
     currentWorkflow?: string
     currentWorkflowIndex?: number
     workflowStep?: number
+    hasEnteredWorkflow?: boolean
     
     // 框架分析结果
     existingSections: string[]
@@ -26,6 +27,8 @@ export type FrameworkState = {
     // 其他状态
     isOptimizeOrComplete?: boolean
     continueInCurrentSection?: boolean
+    switchToWriterMode?: boolean
+    optimizeAll?: boolean
     
     // 时间戳
     lastUpdated: number
@@ -76,9 +79,18 @@ export interface WorkflowParams {
 }
 
 /**
+ * 特殊工作流返回值类型
+ */
+export interface WorkflowSpecialResult {
+    type: string
+    message?: string
+    [key: string]: any
+}
+
+/**
  * 工作流处理函数类型
  */
-export type WorkflowHandler = (params: WorkflowParams) => Promise<boolean>
+export type WorkflowHandler = (params: WorkflowParams) => Promise<boolean | WorkflowSpecialResult>
 
 /**
  * 工作流步骤处理函数类型
@@ -129,9 +141,9 @@ export interface IFrameworkService {
      * 执行特定工作流
      * @param workflowName 工作流名称
      * @param params 工作流参数
-     * @returns 工作流执行结果
+     * @returns 工作流执行结果或特殊返回值
      */
-    executeWorkflow(workflowName: string, params: WorkflowParams): Promise<boolean>
+    executeWorkflow(workflowName: string, params: WorkflowParams): Promise<boolean | WorkflowSpecialResult>
 
     /**
      * 清理服务资源
